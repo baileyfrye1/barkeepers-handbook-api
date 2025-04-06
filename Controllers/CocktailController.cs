@@ -1,6 +1,6 @@
 using api.Data;
 using api.DTOs.Cocktails;
-using api.Helpers;
+// using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,11 +29,11 @@ namespace api.Controllers
         // TODO: Finish adding in query functionality
         // TODO: Use generic 'search' parameter for query parameter that would search cocktail names and tags and return whatever contains the search term in either the name or the tags
         [HttpGet]
-        public async Task<IActionResult> GetAllCocktails([FromQuery] QueryObject query)
+        public async Task<IActionResult> GetAllCocktails([FromQuery] string? search)
         {
             try
             {
-                var cocktailsDto = await _cocktailService.GetAllAsync(query);
+                var cocktailsDto = await _cocktailService.GetAllAsync(search);
                 return Ok(cocktailsDto);
             }
             catch (Exception ex)

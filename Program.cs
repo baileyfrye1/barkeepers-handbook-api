@@ -71,7 +71,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped(typeof(CocktailService));
 builder.Services.AddScoped(typeof(CocktailIngredientService));
 builder.Services.AddScoped(typeof(IngredientService));
-builder.Services.AddScoped(typeof(AuthService));
+// builder.Services.AddScoped(typeof(AuthService));
 
 // Load Supabase URL and Key from appsettings.json or environment variables
 var supabaseUrl = builder.Configuration["Supabase:Url"];

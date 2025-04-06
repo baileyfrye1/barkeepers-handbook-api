@@ -1,6 +1,6 @@
 //TODO Create a factory service class that handles base operations but have separate service classes to extend functionality for specific tables
 using api.DTOs.Cocktails;
-using api.Helpers;
+// using api.Helpers;
 using api.Mappers;
 using api.Models;
 using Supabase;
@@ -55,12 +55,16 @@ namespace api.Data
             return newCocktails;
         }
 
-        public async Task<List<CocktailDto>> GetAllAsync(QueryObject query)
+        public async Task<List<CocktailDto>> GetAllAsync(string search)
         {
+            var capitalizedSearch = string.Join(" ", search.Split(" ").Select(s => s.Substring(0, 1).ToUpper() + s.Substring(1)));
+
             var result = await _supabase
                 .From<Cocktail>()
                 .Select("*, cocktail_id:cocktail_ingredients!inner(*)")
+                .Where(c => c.Name == capitalizedSearch || c.Tags.Contains(search))
                 .Get();
+
 
             var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
 
