@@ -27,6 +27,7 @@ namespace api.Controllers
         }
 
         // TODO: Finish adding in query functionality
+        // TODO: Use generic 'search' parameter for query parameter that would search cocktail names and tags and return whatever contains the search term in either the name or the tags
         [HttpGet]
         public async Task<IActionResult> GetAllCocktails([FromQuery] QueryObject query)
         {
