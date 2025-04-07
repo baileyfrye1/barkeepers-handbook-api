@@ -1,16 +1,7 @@
 //TODO Create a factory service class that handles base operations but have separate service classes to extend functionality for specific tables
 using api.DTOs.Cocktails;
-using api.Helpers;
-
-// using api.Helpers;
 using api.Mappers;
 using api.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.VisualBasic;
-using Supabase;
-using Supabase.Postgrest;
-using Supabase.Postgrest.Interfaces;
-using static Supabase.Postgrest.Constants;
 
 namespace api.Data
 {
@@ -78,6 +69,15 @@ namespace api.Data
             }
 
             var result = await query.Get();
+
+            var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
+
+            return cocktails;
+        }
+
+        public async Task<List<CocktailDto>> GetFeaturedAsync()
+        {
+            var result = await _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
 
             var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
 

@@ -42,7 +42,20 @@ namespace api.Controllers
             }
         }
 
-        [Authorize]
+        [HttpGet("featured")]
+        public async Task<IActionResult> GetFeaturedCocktails()
+        {
+            try
+            {
+                var cocktailsDto = await _cocktailService.GetFeaturedAsync();
+                return Ok(cocktailsDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, $"Error fetching cocktails: {ex.Message}");
+            }
+        }
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetOneCocktailById([FromRoute] int id)
         {
