@@ -1,17 +1,24 @@
 //TODO Create a factory service class that handles base operations but have separate service classes to extend functionality for specific tables
 using api.DTOs.Cocktails;
+using api.Helpers;
+
 // using api.Helpers;
 using api.Mappers;
 using api.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.VisualBasic;
 using Supabase;
+using Supabase.Postgrest;
+using Supabase.Postgrest.Interfaces;
+using static Supabase.Postgrest.Constants;
 
 namespace api.Data
 {
     public class CocktailService
     {
-        private readonly Client _supabase;
+        private readonly Supabase.Client _supabase;
 
-        public CocktailService(Client supabase)
+        public CocktailService(Supabase.Client supabase)
         {
             _supabase = supabase;
         }
@@ -55,16 +62,22 @@ namespace api.Data
             return newCocktails;
         }
 
-        public async Task<List<CocktailDto>> GetAllAsync(string search)
+
+
+        public async Task<List<CocktailDto>> GetAllAsync(string? search)
         {
-            var capitalizedSearch = string.Join(" ", search.Split(" ").Select(s => s.Substring(0, 1).ToUpper() + s.Substring(1)));
+            var query = _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)");
 
-            var result = await _supabase
-                .From<Cocktail>()
-                .Select("*, cocktail_id:cocktail_ingredients!inner(*)")
-                .Where(c => c.Name == capitalizedSearch || c.Tags.Contains(search))
-                .Get();
 
+            if (!string.IsNullOrEmpty(search))
+            {
+                var capitalizedSearch = string.Join(" ", search.Split(" ").Select(s => char.ToUpper(s[0]) + s.Substring(1)));
+
+                query = query
+                .Where(c => c.Name.Contains(capitalizedSearch) || c.Tags.Contains(search));
+            }
+
+            var result = await query.Get();
 
             var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
 
