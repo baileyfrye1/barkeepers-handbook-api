@@ -14,7 +14,7 @@ namespace api.Data
             _supabase = supabase;
         }
 
-        public async Task<Cocktail> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
+        public async Task<Cocktail?> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
         {
             var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto();
 
@@ -22,7 +22,7 @@ namespace api.Data
 
             // using var memoryStream = new MemoryStream();
 
-            // await cocktailRequestDto.Image.CopyToAsync(memoryStream);
+            // await cocktailRequestDto.Image.CopyToAsync(memoryStream)
 
             // Console.WriteLine(memoryStream);
 
@@ -34,7 +34,7 @@ namespace api.Data
             //     .Storage.From("cocktail-images")
             //     .Upload(memoryStream.ToArray(), $"cocktail-{cocktailModel.Id}.{extension}");
 
-            if (result is null)
+            if (result.Model == null)
             {
                 return null;
             }
@@ -42,11 +42,17 @@ namespace api.Data
             var newCocktail = result.Model;
 
             return newCocktail;
+
         }
 
-        public async Task<List<CocktailDto>> AddManyAsync(List<Cocktail> cocktails)
+        public async Task<List<CocktailDto>?> AddManyAsync(List<Cocktail> cocktails)
         {
             var result = await _supabase.From<Cocktail>().Insert(cocktails);
+
+            if (result.Models == null)
+            {
+                return null;
+            }
 
             var newCocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
 
@@ -55,7 +61,7 @@ namespace api.Data
 
 
 
-        public async Task<List<CocktailDto>> GetAllAsync(string? search)
+        public async Task<List<CocktailDto>?> GetAllAsync(string? search)
         {
             var query = _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)");
 
@@ -70,14 +76,24 @@ namespace api.Data
 
             var result = await query.Get();
 
+            if (result.Models == null)
+            {
+                return null;
+            }
+
             var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
 
             return cocktails;
         }
 
-        public async Task<List<CocktailDto>> GetFeaturedAsync()
+        public async Task<List<CocktailDto>?> GetFeaturedAsync()
         {
             var result = await _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
+
+            if (result.Models == null)
+            {
+                return null;
+            }
 
             var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
 
@@ -115,7 +131,7 @@ namespace api.Data
                 return null;
             }
 
-            var cocktail = result.Models.FirstOrDefault().ToCocktailDto();
+            var cocktail = result.Model.ToCocktailDto();
 
             return cocktail;
         }
