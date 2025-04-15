@@ -1,5 +1,6 @@
 using System.Text;
 using api.Data;
+using api.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -8,6 +9,8 @@ using Supabase;
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddProblemDetails();
 
 builder
     .Services.AddControllers()
@@ -66,8 +69,6 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddOpenApi();
 
-// builder.Services.AddScoped<ICocktailRepository, CocktailRepository>();
-
 builder.Services.AddScoped(typeof(CocktailService));
 builder.Services.AddScoped(typeof(CocktailIngredientService));
 builder.Services.AddScoped(typeof(IngredientService));
@@ -85,6 +86,8 @@ var supabase = new Client(supabaseUrl, supabaseKey, options);
 builder.Services.AddSingleton(supabase);
 
 var app = builder.Build();
+
+app.UseGlobalErrorHandling();
 
 app.UseCors(MyAllowSpecificOrigins);
 

@@ -1,6 +1,5 @@
 using api.Data;
 using api.DTOs.Cocktails;
-// using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
