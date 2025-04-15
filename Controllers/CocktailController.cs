@@ -30,149 +30,125 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllCocktails([FromQuery] string? search)
         {
-            try
-            {
-                var cocktailsDto = await _cocktailService.GetAllAsync(search);
-                return Ok(cocktailsDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex);
-            }
+            var cocktailsDto = await _cocktailService.GetAllAsync(search);
+            return Ok(cocktailsDto);
         }
 
         [HttpGet("featured")]
         public async Task<IActionResult> GetFeaturedCocktails()
         {
-            try
-            {
-                var cocktailsDto = await _cocktailService.GetFeaturedAsync();
-                return Ok(cocktailsDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, $"Error fetching cocktails: {ex.Message}");
-            }
+            var cocktailsDto = await _cocktailService.GetFeaturedAsync();
+            return Ok(cocktailsDto);
         }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetOneCocktailById([FromRoute] int id)
         {
-            try
-            {
-                var cocktailDto = await _cocktailService.GetOneByIdAsync(id);
+            var result = await _cocktailService.GetOneByIdAsync(id);
 
-                if (cocktailDto == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(cocktailDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, $"Error fetching cocktails: {ex.Message}");
-            }
+            return result.Match<IActionResult>(
+               c => Ok(c),
+               _ => NotFound()
+            );
         }
 
+        // TODO: Refactor this endpoint to handle OneOf return from services class
+        // TODO: Review this code to make sure it's efficient
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCocktail(
             [FromBody] CreateCocktailRequestDto cocktailRequestDto
         )
         {
-            if (!ModelState.IsValid)
+            if (!cocktailRequestDto.CocktailIngredients.Any())
             {
-                return BadRequest("Please enter all fields.");
+                return BadRequest(
+                    "Error creating cocktail. Please provide cocktail ingredients."
+                );
             }
 
-            try
+            var ingredientMap = new Dictionary<string, Ingredient>();
+
+            foreach (var cocktailIngredient in cocktailRequestDto.CocktailIngredients)
             {
-                if (!cocktailRequestDto.CocktailIngredients.Any())
+                if (string.IsNullOrWhiteSpace(cocktailIngredient.Ingredient.Name))
                 {
                     return BadRequest(
-                        "Error creating cocktail. Please provide cocktail ingredients."
+                        "Error creating cocktail. Please provide ingredient name."
                     );
                 }
 
-                var ingredientMap = new Dictionary<string, Ingredient>();
-
-                foreach (var cocktailIngredient in cocktailRequestDto.CocktailIngredients)
-                {
-                    if (string.IsNullOrWhiteSpace(cocktailIngredient.Ingredient.Name))
-                    {
-                        return BadRequest(
-                            "Error creating cocktail. Please provide ingredient name."
-                        );
-                    }
-
-                    if (
-                        !ingredientMap.TryGetValue(
-                            cocktailIngredient.Ingredient.Name,
-                            out var ingredient
-                        )
+                if (
+                    !ingredientMap.TryGetValue(
+                        cocktailIngredient.Ingredient.Name,
+                        out var ingredient
                     )
+                )
+                {
+                    ingredient = await _ingredientService.GetOneByNameAsync(
+                        cocktailIngredient.Ingredient.Name
+                    );
+
+                    if (ingredient == null)
                     {
-                        ingredient = await _ingredientService.GetOneByNameAsync(
-                            cocktailIngredient.Ingredient.Name
-                        );
-
-                        if (ingredient == null)
+                        var newIngredientModel = new Ingredient
                         {
-                            var newIngredientModel = new Ingredient
-                            {
-                                Name = cocktailIngredient.Ingredient.Name,
-                                CreatedAt = DateTime.Now,
-                            };
+                            Name = cocktailIngredient.Ingredient.Name,
+                            CreatedAt = DateTime.Now,
+                        };
 
-                            ingredient = await _ingredientService.AddOneAsync(newIngredientModel);
-                        }
-
-                        ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
+                        ingredient = await _ingredientService.AddOneAsync(newIngredientModel);
                     }
 
-                    cocktailRequestDto.Tags.Add(cocktailIngredient.Ingredient.Name.ToLower());
+                    ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
                 }
 
-                var newCocktail = await _cocktailService.AddOneAsync(cocktailRequestDto);
+                cocktailRequestDto.Tags.Add(cocktailIngredient.Ingredient.Name.ToLower());
+            }
 
-                var newCocktailIngredientsList = new List<CocktailIngredient> { };
+            var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
 
-                foreach (var cocktailIngredientDto in cocktailRequestDto.CocktailIngredients)
+            return await newCocktailResult.Match<IActionResult>(
+                async dto =>
                 {
-                    var ingredient = ingredientMap[cocktailIngredientDto.Ingredient.Name];
+                    var newCocktailIngredientsList = new List<CocktailIngredient> { };
 
-                    var unitValue = string.IsNullOrWhiteSpace(cocktailIngredientDto.Unit)
-                        ? "oz"
-                        : cocktailIngredientDto.Unit;
-
-                    var amountValue =
-                        cocktailIngredientDto.Amount != 0 ? cocktailIngredientDto.Amount : null;
-
-                    var newCocktailIngredientModel = new CocktailIngredient
+                    foreach (var cocktailIngredientDto in cocktailRequestDto.CocktailIngredients)
                     {
-                        CocktailId = newCocktail.Id,
-                        IngredientId = ingredient.Id,
-                        Amount = amountValue,
-                        Unit = unitValue,
-                        CreatedAt = DateTime.Now,
-                    };
+                        var ingredient = ingredientMap[cocktailIngredientDto.Ingredient.Name];
 
-                    newCocktailIngredientsList.Add(newCocktailIngredientModel);
-                }
+                        var unitValue = string.IsNullOrWhiteSpace(cocktailIngredientDto.Unit)
+                            ? "oz"
+                            : cocktailIngredientDto.Unit;
 
-                var newCocktailIngredients = await _cocktailIngredientService.AddManyAsync(
-                    newCocktailIngredientsList
-                );
+                        var amountValue =
+                            cocktailIngredientDto.Amount != 0 ? cocktailIngredientDto.Amount : null;
 
-                return StatusCode(201, newCocktail);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error while adding cocktail: {ex.Message}");
-            }
+                        var newCocktailIngredientModel = new CocktailIngredient
+                        {
+                            CocktailId = dto.Id,
+                            IngredientId = ingredient.Id,
+                            Amount = amountValue,
+                            Unit = unitValue,
+                            CreatedAt = DateTime.Now,
+                        };
+
+                        newCocktailIngredientsList.Add(newCocktailIngredientModel);
+                    }
+
+                    var newCocktailIngredients = await _cocktailIngredientService.AddManyAsync(
+                        newCocktailIngredientsList
+                    );
+
+                    return CreatedAtAction(nameof(GetOneCocktailById), new { id = dto.Id }, dto);
+                },
+                validate => ValidationProblem(validate.Errors),
+                error => StatusCode(500, error.Message)
+            );
+
         }
 
+        // TODO: Review this code to make sure it's efficient
         [Authorize]
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> UpdateCocktail(
@@ -180,70 +156,60 @@ namespace api.Controllers
             [FromBody] UpdateCocktailRequestDto updateCocktailDto
         )
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            var cocktailResult = await _cocktailService.GetOneByIdAsync(id);
 
-            var cocktailDto = await _cocktailService.GetOneByIdAsync(id);
+            return await cocktailResult.Match<Task<IActionResult>>(
+                async dto =>
+                {
 
-            if (cocktailDto == null)
-            {
-                return BadRequest();
-            }
+                    if (string.IsNullOrWhiteSpace(updateCocktailDto.Name))
+                    {
+                        updateCocktailDto.Name = dto.Name;
+                    }
 
-            if (string.IsNullOrWhiteSpace(updateCocktailDto.Name))
-            {
-                updateCocktailDto.Name = cocktailDto.Name;
-            }
+                    if (!updateCocktailDto.Featured.HasValue)
+                    {
+                        updateCocktailDto.Featured = dto.Featured;
+                    }
 
-            if (!updateCocktailDto.Featured.HasValue)
-            {
-                updateCocktailDto.Featured = cocktailDto.Featured;
-            }
+                    if (updateCocktailDto.Tags.Count == 0)
+                    {
+                        updateCocktailDto.Tags = dto.Tags;
+                    }
 
-            if (updateCocktailDto.Tags.Count == 0)
-            {
-                updateCocktailDto.Tags = cocktailDto.Tags;
-            }
+                    var cocktailModel = new Cocktail
+                    {
+                        Name = updateCocktailDto.Name,
+                        Featured = updateCocktailDto.Featured.Value,
+                        Tags = updateCocktailDto.Tags,
+                        CocktailIngredients = updateCocktailDto.CocktailIngredients,
+                        CreatedAt = dto.CreatedAt,
+                        UpdatedAt = DateTime.Now,
+                    };
 
-            var cocktailModel = new Cocktail
-            {
-                Name = updateCocktailDto.Name,
-                Featured = updateCocktailDto.Featured.Value,
-                Tags = updateCocktailDto.Tags,
-                CocktailIngredients = updateCocktailDto.CocktailIngredients,
-                CreatedAt = cocktailDto.CreatedAt,
-                UpdatedAt = DateTime.Now,
-            };
+                    var updatedCocktail = await _cocktailService.UpdateOneAsync(id, cocktailModel);
 
-            var updatedCocktail = await _cocktailService.UpdateOneAsync(id, cocktailModel);
+                    return updatedCocktail.Match<IActionResult>(
+                        updated => Ok(updated),
+                        nf => NotFound(),
+                        validate => BadRequest(validate.Errors)
+                    );
+                },
+                _ => Task.FromResult<IActionResult>(NotFound())
+            );
 
-            return Ok(updatedCocktail);
         }
 
         [Authorize]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCocktail([FromRoute] int id)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    BadRequest();
+            var result = await _cocktailService.DeleteOneAsync(id);
 
-                var cocktail = await _cocktailService.GetOneByIdAsync(id);
-
-                if (cocktail == null)
-                {
-                    return NotFound();
-                }
-
-                _cocktailService.DeleteOneAsync(id);
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(404, ex);
-            }
+            return result.Match<IActionResult>(
+                c => NoContent(),
+                _ => NotFound()
+            );
         }
     }
 }

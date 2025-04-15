@@ -1,42 +1,42 @@
 //TODO Create a factory service class that handles base operations but have separate service classes to extend functionality for specific tables
 using api.DTOs.Cocktails;
+using api.Errors;
 using api.Mappers;
 using api.Models;
+using api.Validators;
+using FluentValidation;
+using OneOf;
+using OneOf.Types;
 
 namespace api.Data
 {
     public class CocktailService
     {
         private readonly Supabase.Client _supabase;
+        private readonly IValidator<CreateCocktailRequestDto> _validator;
 
-        public CocktailService(Supabase.Client supabase)
+        public CocktailService(Supabase.Client supabase, IValidator<CreateCocktailRequestDto> validator)
         {
             _supabase = supabase;
+            _validator = validator;
         }
 
-        public async Task<Cocktail?> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
+        public async Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
         {
+            var validationResult = _validator.Validate(cocktailRequestDto);
+
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
             var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto();
 
             var result = await _supabase.From<Cocktail>().Insert(cocktailModel);
 
-            // using var memoryStream = new MemoryStream();
-
-            // await cocktailRequestDto.Image.CopyToAsync(memoryStream)
-
-            // Console.WriteLine(memoryStream);
-
-            // var lastIndexOfDot = cocktailRequestDto.Image.FileName.LastIndexOf('.');
-
-            // string extension = cocktailRequestDto.Image.FileName.Substring(lastIndexOfDot + 1);
-
-            // await _supabase
-            //     .Storage.From("cocktail-images")
-            //     .Upload(memoryStream.ToArray(), $"cocktail-{cocktailModel.Id}.{extension}");
-
-            if (result.Model == null)
+            if (result.Model is null)
             {
-                return null;
+                return new UnexpectedError("Failed to insert cocktail into database.");
             }
 
             var newCocktail = result.Model;
@@ -45,23 +45,7 @@ namespace api.Data
 
         }
 
-        public async Task<List<CocktailDto>?> AddManyAsync(List<Cocktail> cocktails)
-        {
-            var result = await _supabase.From<Cocktail>().Insert(cocktails);
-
-            if (result.Models == null)
-            {
-                return null;
-            }
-
-            var newCocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
-
-            return newCocktails;
-        }
-
-
-
-        public async Task<List<CocktailDto>?> GetAllAsync(string? search)
+        public async Task<List<CocktailDto>> GetAllAsync(string? search)
         {
             var query = _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)");
 
@@ -76,31 +60,21 @@ namespace api.Data
 
             var result = await query.Get();
 
-            if (result.Models == null)
-            {
-                return null;
-            }
-
-            var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
+            var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList() ?? new List<CocktailDto>();
 
             return cocktails;
         }
 
-        public async Task<List<CocktailDto>?> GetFeaturedAsync()
+        public async Task<List<CocktailDto>> GetFeaturedAsync()
         {
             var result = await _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
 
-            if (result.Models == null)
-            {
-                return null;
-            }
-
-            var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
+            var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList() ?? new List<CocktailDto>();
 
             return cocktails;
         }
 
-        public async Task<CocktailDto?> GetOneByIdAsync(int id)
+        public async Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id)
         {
             var result = await _supabase
                 .From<Cocktail>()
@@ -108,9 +82,9 @@ namespace api.Data
                 .Where(n => n.Id == id)
                 .Get();
 
-            if (result.Model == null)
+            if (result.Model is null)
             {
-                return null;
+                return new NotFound();
             }
 
             var cocktail = result.Model.ToCocktailDto();
@@ -118,7 +92,7 @@ namespace api.Data
             return cocktail;
         }
 
-        public async Task<CocktailDto?> GetOneByNameAsync(string name)
+        public async Task<OneOf<CocktailDto, NotFound>> GetOneByNameAsync(string name)
         {
             var result = await _supabase
                 .From<Cocktail>()
@@ -126,9 +100,9 @@ namespace api.Data
                 .Where(n => n.Name == name)
                 .Get();
 
-            if (result.Model == null)
+            if (result.Model is null)
             {
-                return null;
+                return new NotFound();
             }
 
             var cocktail = result.Model.ToCocktailDto();
@@ -136,17 +110,16 @@ namespace api.Data
             return cocktail;
         }
 
-        public async Task<Cocktail?> UpdateOneAsync(int id, Cocktail cocktailModel)
+        public async Task<OneOf<Cocktail, NotFound, ValidationFailed>> UpdateOneAsync(int id, Cocktail cocktailModel)
         {
-            Console.WriteLine(cocktailModel.Name);
             var cocktailToBeUpdated = await _supabase
                 .From<Cocktail>()
                 .Where(n => n.Id == id)
                 .Single();
 
-            if (cocktailToBeUpdated == null)
+            if (cocktailToBeUpdated is null)
             {
-                return null;
+                return new NotFound();
             }
 
             cocktailToBeUpdated.Name = cocktailModel.Name;
@@ -160,9 +133,18 @@ namespace api.Data
             return cocktailToBeUpdated;
         }
 
-        public void DeleteOneAsync(int id)
+        public async Task<OneOf<Success, NotFound>> DeleteOneAsync(int id)
         {
-            _supabase.From<Cocktail>().Where(n => n.Id == id).Delete();
+            var result = await GetOneByIdAsync(id);
+
+            return result.Match<OneOf<Success, NotFound>>(
+                cocktail =>
+                {
+                    _supabase.From<Cocktail>().Where(c => c.Id == id).Delete();
+                    return new Success();
+                },
+                _ => new NotFound()
+            );
         }
     }
 }

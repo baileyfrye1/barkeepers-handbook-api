@@ -10,7 +10,7 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddProblemDetails();
+builder.Services.AddGlobalErrorHandling();
 
 builder
     .Services.AddControllers()
