@@ -1,14 +1,15 @@
+using api.DTOs.Cocktails;
 using api.Models;
 using FluentValidation;
 
 namespace api.Validators
 {
-	public class CreateCocktailValidator : AbstractValidator<Cocktail>
+	public class CreateCocktailValidator : AbstractValidator<CreateCocktailRequestDto>
 	{
 		public CreateCocktailValidator()
 		{
 			RuleFor(c => c.Name).NotEmpty().WithMessage("Cocktail name is required");
-			RuleFor(c => c.CocktailIngredients).NotEmpty().WithMessage("Cocktail must have at least one ingredient");
+			RuleFor(c => c.CocktailIngredients).NotEmpty().WithMessage("Cocktail ingredients are required");
 		}
 	}
 }

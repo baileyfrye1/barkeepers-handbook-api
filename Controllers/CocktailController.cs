@@ -1,6 +1,9 @@
 using api.Data;
 using api.DTOs.Cocktails;
+using api.Mappers;
 using api.Models;
+using api.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,8 +55,7 @@ namespace api.Controllers
             );
         }
 
-        // TODO: Refactor this endpoint to handle OneOf return from services class
-        // TODO: Review this code to make sure it's efficient
+        // TODO: Abstract creation logic into domain services class to make controller more lean
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCocktail(
@@ -108,7 +110,7 @@ namespace api.Controllers
 
             var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
 
-            return await newCocktailResult.Match<IActionResult>(
+            return await newCocktailResult.Match<Task<IActionResult>>(
                 async dto =>
                 {
                     var newCocktailIngredientsList = new List<CocktailIngredient> { };
@@ -142,13 +144,12 @@ namespace api.Controllers
 
                     return CreatedAtAction(nameof(GetOneCocktailById), new { id = dto.Id }, dto);
                 },
-                validate => ValidationProblem(validate.Errors),
-                error => StatusCode(500, error.Message)
+                validate => Task.FromResult<IActionResult>(BadRequest(validate.MapToResponse())),
+                error => Task.FromResult<IActionResult>(StatusCode(500, error.Message))
             );
-
         }
 
-        // TODO: Review this code to make sure it's efficient
+        // TODO: Abstract update logic into domain services class to make controller more lean
         [Authorize]
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> UpdateCocktail(
@@ -159,22 +160,22 @@ namespace api.Controllers
             var cocktailResult = await _cocktailService.GetOneByIdAsync(id);
 
             return await cocktailResult.Match<Task<IActionResult>>(
-                async dto =>
+                async result =>
                 {
 
                     if (string.IsNullOrWhiteSpace(updateCocktailDto.Name))
                     {
-                        updateCocktailDto.Name = dto.Name;
+                        updateCocktailDto.Name = result.Name;
                     }
 
                     if (!updateCocktailDto.Featured.HasValue)
                     {
-                        updateCocktailDto.Featured = dto.Featured;
+                        updateCocktailDto.Featured = result.Featured;
                     }
 
                     if (updateCocktailDto.Tags.Count == 0)
                     {
-                        updateCocktailDto.Tags = dto.Tags;
+                        updateCocktailDto.Tags = result.Tags;
                     }
 
                     var cocktailModel = new Cocktail
@@ -183,16 +184,15 @@ namespace api.Controllers
                         Featured = updateCocktailDto.Featured.Value,
                         Tags = updateCocktailDto.Tags,
                         CocktailIngredients = updateCocktailDto.CocktailIngredients,
-                        CreatedAt = dto.CreatedAt,
+                        CreatedAt = result.CreatedAt,
                         UpdatedAt = DateTime.Now,
                     };
 
                     var updatedCocktail = await _cocktailService.UpdateOneAsync(id, cocktailModel);
 
                     return updatedCocktail.Match<IActionResult>(
-                        updated => Ok(updated),
-                        nf => NotFound(),
-                        validate => BadRequest(validate.Errors)
+                        updated => NoContent(),
+                        nf => NotFound()
                     );
                 },
                 _ => Task.FromResult<IActionResult>(NotFound())

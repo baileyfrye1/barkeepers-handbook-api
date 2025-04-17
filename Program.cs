@@ -1,6 +1,9 @@
 using System.Text;
 using api.Data;
+using api.DTOs.Cocktails;
 using api.Extensions;
+using api.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -72,7 +75,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped(typeof(CocktailService));
 builder.Services.AddScoped(typeof(CocktailIngredientService));
 builder.Services.AddScoped(typeof(IngredientService));
-// builder.Services.AddScoped(typeof(AuthService));
+builder.Services.AddScoped<IValidator<CreateCocktailRequestDto>, CreateCocktailValidator>();
 
 // Load Supabase URL and Key from appsettings.json or environment variables
 var supabaseUrl = builder.Configuration["Supabase:Url"];

@@ -92,25 +92,7 @@ namespace api.Data
             return cocktail;
         }
 
-        public async Task<OneOf<CocktailDto, NotFound>> GetOneByNameAsync(string name)
-        {
-            var result = await _supabase
-                .From<Cocktail>()
-                .Select("*, cocktail_id:cocktail_ingredients!inner(*)")
-                .Where(n => n.Name == name)
-                .Get();
-
-            if (result.Model is null)
-            {
-                return new NotFound();
-            }
-
-            var cocktail = result.Model.ToCocktailDto();
-
-            return cocktail;
-        }
-
-        public async Task<OneOf<Cocktail, NotFound, ValidationFailed>> UpdateOneAsync(int id, Cocktail cocktailModel)
+        public async Task<OneOf<Success, NotFound>> UpdateOneAsync(int id, Cocktail cocktailModel)
         {
             var cocktailToBeUpdated = await _supabase
                 .From<Cocktail>()
@@ -130,7 +112,7 @@ namespace api.Data
 
             await cocktailToBeUpdated.Update<Cocktail>();
 
-            return cocktailToBeUpdated;
+            return new Success();
         }
 
         public async Task<OneOf<Success, NotFound>> DeleteOneAsync(int id)
