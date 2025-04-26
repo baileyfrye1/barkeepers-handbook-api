@@ -2,8 +2,6 @@ using api.Data;
 using api.DTOs.Cocktails;
 using api.Mappers;
 using api.Models;
-using api.Validators;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,16 +14,19 @@ namespace api.Controllers
         private readonly CocktailService _cocktailService;
         private readonly CocktailIngredientService _cocktailIngredientService;
         private readonly IngredientService _ingredientService;
+        private readonly CocktailManagementService _cocktailManagementService;
 
         public CocktailsController(
             CocktailService cocktailService,
             CocktailIngredientService cocktailIngredientService,
-            IngredientService ingredientService
+            IngredientService ingredientService,
+            CocktailManagementService cocktailManagementService
         )
         {
             _cocktailService = cocktailService;
             _cocktailIngredientService = cocktailIngredientService;
             _ingredientService = ingredientService;
+            _cocktailManagementService = cocktailManagementService;
         }
 
         // TODO: Finish adding in query functionality
@@ -55,7 +56,6 @@ namespace api.Controllers
             );
         }
 
-        // TODO: Abstract creation logic into domain services class to make controller more lean
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCocktail(
@@ -69,87 +69,27 @@ namespace api.Controllers
                 );
             }
 
-            var ingredientMap = new Dictionary<string, Ingredient>();
-
-            foreach (var cocktailIngredient in cocktailRequestDto.CocktailIngredients)
-            {
-                if (string.IsNullOrWhiteSpace(cocktailIngredient.Ingredient.Name))
-                {
-                    return BadRequest(
-                        "Error creating cocktail. Please provide ingredient name."
-                    );
-                }
-
-                if (
-                    !ingredientMap.TryGetValue(
-                        cocktailIngredient.Ingredient.Name,
-                        out var ingredient
-                    )
-                )
-                {
-                    ingredient = await _ingredientService.GetOneByNameAsync(
-                        cocktailIngredient.Ingredient.Name
-                    );
-
-                    if (ingredient == null)
-                    {
-                        var newIngredientModel = new Ingredient
-                        {
-                            Name = cocktailIngredient.Ingredient.Name,
-                            CreatedAt = DateTime.Now,
-                        };
-
-                        ingredient = await _ingredientService.AddOneAsync(newIngredientModel);
-                    }
-
-                    ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
-                }
-
-                cocktailRequestDto.Tags.Add(cocktailIngredient.Ingredient.Name.ToLower());
-            }
+            var ingredientMap = await _cocktailManagementService.EnsureCocktailIngredientsExistAsync(cocktailRequestDto);
 
             var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
 
             return await newCocktailResult.Match<Task<IActionResult>>(
-                async dto =>
+                async cocktail =>
                 {
-                    var newCocktailIngredientsList = new List<CocktailIngredient> { };
-
-                    foreach (var cocktailIngredientDto in cocktailRequestDto.CocktailIngredients)
-                    {
-                        var ingredient = ingredientMap[cocktailIngredientDto.Ingredient.Name];
-
-                        var unitValue = string.IsNullOrWhiteSpace(cocktailIngredientDto.Unit)
-                            ? "oz"
-                            : cocktailIngredientDto.Unit;
-
-                        var amountValue =
-                            cocktailIngredientDto.Amount != 0 ? cocktailIngredientDto.Amount : null;
-
-                        var newCocktailIngredientModel = new CocktailIngredient
-                        {
-                            CocktailId = dto.Id,
-                            IngredientId = ingredient.Id,
-                            Amount = amountValue,
-                            Unit = unitValue,
-                            CreatedAt = DateTime.Now,
-                        };
-
-                        newCocktailIngredientsList.Add(newCocktailIngredientModel);
-                    }
-
+                    var newCocktailIngredientsList = _cocktailManagementService.MapCocktailIngredients(ingredientMap, cocktail, cocktailRequestDto);
+                    
                     var newCocktailIngredients = await _cocktailIngredientService.AddManyAsync(
                         newCocktailIngredientsList
                     );
 
-                    return CreatedAtAction(nameof(GetOneCocktailById), new { id = dto.Id }, dto);
+                    return CreatedAtAction(nameof(GetOneCocktailById), new { id = cocktail.Id }, cocktail);
                 },
                 validate => Task.FromResult<IActionResult>(BadRequest(validate.MapToResponse())),
                 error => Task.FromResult<IActionResult>(StatusCode(500, error.Message))
             );
         }
 
-        // TODO: Abstract update logic into domain services class to make controller more lean
+        // TODO: Look into centralizing validation using FluentValidation
         [Authorize]
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> UpdateCocktail(
@@ -173,7 +113,7 @@ namespace api.Controllers
                         updateCocktailDto.Featured = result.Featured;
                     }
 
-                    if (updateCocktailDto.Tags.Count == 0)
+                    if (updateCocktailDto.Tags != null && updateCocktailDto.Tags.Count == 0)
                     {
                         updateCocktailDto.Tags = result.Tags;
                     }
@@ -197,7 +137,6 @@ namespace api.Controllers
                 },
                 _ => Task.FromResult<IActionResult>(NotFound())
             );
-
         }
 
         [Authorize]

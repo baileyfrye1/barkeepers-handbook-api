@@ -5,7 +5,6 @@ namespace api.Extensions
         public static WebApplication UseGlobalErrorHandling(this WebApplication app)
         {
             app.UseExceptionHandler();
-
             return app;
         }
     }

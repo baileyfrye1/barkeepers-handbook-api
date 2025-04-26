@@ -1,4 +1,3 @@
-//TODO Create a factory service class that handles base operations but have separate service classes to extend functionality for specific tables
 using api.DTOs.Cocktails;
 using api.Errors;
 using api.Mappers;

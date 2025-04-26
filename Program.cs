@@ -72,10 +72,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped(typeof(CocktailService));
-builder.Services.AddScoped(typeof(CocktailIngredientService));
-builder.Services.AddScoped(typeof(IngredientService));
-builder.Services.AddScoped<IValidator<CreateCocktailRequestDto>, CreateCocktailValidator>();
+// Add Dependency Injection
+builder.Services.AddDependencies();
 
 // Load Supabase URL and Key from appsettings.json or environment variables
 var supabaseUrl = builder.Configuration["Supabase:Url"];
