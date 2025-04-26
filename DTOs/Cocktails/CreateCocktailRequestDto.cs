@@ -8,7 +8,6 @@ namespace api.DTOs.Cocktails
         [Required]
         public string Name { get; set; } = string.Empty;
 
-        [Required]
         public bool Featured { get; set; }
 
         public List<string> Tags { get; set; } = [];

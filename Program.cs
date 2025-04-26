@@ -1,5 +1,9 @@
 using System.Text;
 using api.Data;
+using api.DTOs.Cocktails;
+using api.Extensions;
+using api.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -8,6 +12,8 @@ using Supabase;
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddGlobalErrorHandling();
 
 builder
     .Services.AddControllers()
@@ -66,12 +72,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddOpenApi();
 
-// builder.Services.AddScoped<ICocktailRepository, CocktailRepository>();
-
-builder.Services.AddScoped(typeof(CocktailService));
-builder.Services.AddScoped(typeof(CocktailIngredientService));
-builder.Services.AddScoped(typeof(IngredientService));
-// builder.Services.AddScoped(typeof(AuthService));
+// Add Dependency Injection
+builder.Services.AddDependencies();
 
 // Load Supabase URL and Key from appsettings.json or environment variables
 var supabaseUrl = builder.Configuration["Supabase:Url"];
@@ -85,6 +87,8 @@ var supabase = new Client(supabaseUrl, supabaseKey, options);
 builder.Services.AddSingleton(supabase);
 
 var app = builder.Build();
+
+app.UseGlobalErrorHandling();
 
 app.UseCors(MyAllowSpecificOrigins);
 

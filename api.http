@@ -1,6 +1,0 @@
-@api_HostAddress = https://localhost:7261
-
-GET {{api_HostAddress}}
-Accept: application/json
-
-###

@@ -1,11 +1,10 @@
-using api.Interfaces;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
 namespace api.Models
 {
     [Table("cocktails")]
-    public class Cocktail : BaseModel, IHasId
+    public class Cocktail : BaseModel
     {
         [PrimaryKey("id", false)]
         public int Id { get; set; }

@@ -23,14 +23,6 @@ namespace api.Data
 			return newIngredient;
 		}
 
-		public async Task<List<Ingredient>> AddManyAsync(List<Ingredient> ingredients)
-		{
-			var result = await _supabase.From<Ingredient>().Insert(ingredients);
-
-			var newIngredients = result.Models.ToList();
-
-			return newIngredients;
-		}
 		public async Task<Ingredient?> GetOneByNameAsync(string name)
 		{
 			var result = await _supabase.From<Ingredient>().Where(i => i.Name == name).Get();
