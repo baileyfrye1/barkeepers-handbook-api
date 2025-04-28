@@ -32,10 +32,10 @@ namespace api.Controllers
         // TODO: Finish adding in query functionality
         // TODO: Use generic 'search' parameter for query parameter that would search cocktail names and tags and return whatever contains the search term in either the name or the tags
         [HttpGet]
-        public async Task<IActionResult> GetAllCocktails([FromQuery] string? search)
+        public async Task<IActionResult> GetAllCocktails([FromQuery] string? search, int page)
         {
-            var cocktailsDto = await _cocktailService.GetAllAsync(search);
-            return Ok(cocktailsDto);
+            var cocktailsDto = await _cocktailService.GetAllAsync(search, page);
+            return Ok(new {Cocktails = cocktailsDto.Cocktails, TotalCount = cocktailsDto.TotalCount});
         }
 
         [HttpGet("featured")]
