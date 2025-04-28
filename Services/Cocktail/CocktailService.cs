@@ -6,6 +6,7 @@ using api.Validators;
 using FluentValidation;
 using OneOf;
 using OneOf.Types;
+using Supabase.Postgrest;
 
 namespace api.Data
 {
@@ -44,24 +45,29 @@ namespace api.Data
 
         }
 
-        public async Task<List<CocktailDto>> GetAllAsync(string? search)
+        public async Task<(List<CocktailDto> Cocktails, int TotalCount)> GetAllAsync(string? search, int page)
         {
+            // Pagination Variables
+            const int itemsPerPage = 10;
+            var offset = page == 1 ? 0 : (page - 1) * itemsPerPage;
+            var itemLimit = (page * itemsPerPage) - 1;
+            
+            var count = await _supabase.From<Cocktail>().Select("*").Count(Constants.CountType.Exact);
             var query = _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)");
-
 
             if (!string.IsNullOrEmpty(search))
             {
                 var capitalizedSearch = string.Join(" ", search.Split(" ").Select(s => char.ToUpper(s[0]) + s.Substring(1)));
 
                 query = query
-                .Where(c => c.Name.Contains(capitalizedSearch) || c.Tags.Contains(search));
+                    .Where(c => c.Name.Contains(capitalizedSearch) || c.Tags.Contains(search));
             }
 
-            var result = await query.Get();
+            var result = await query.Range(offset, itemLimit).Get();
 
             var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList() ?? new List<CocktailDto>();
 
-            return cocktails;
+            return (Cocktails: cocktails, TotalCount: count);
         }
 
         public async Task<List<CocktailDto>> GetFeaturedAsync()
