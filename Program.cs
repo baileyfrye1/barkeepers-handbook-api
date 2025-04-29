@@ -28,7 +28,7 @@ builder
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Configuration.AddEnvironmentVariables();
 
-var bytes = Encoding.UTF8.GetBytes(builder.Configuration["Authentication:JwtSecret"]);
+var bytes = Encoding.UTF8.GetBytes(builder.Configuration["Authentication:JwtSecret"]!);
 
 builder
     .Services.AddAuthentication()
