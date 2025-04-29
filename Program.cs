@@ -1,6 +1,4 @@
 using System.Text;
-using api.Data;
-using api.DTOs.Cocktails;
 using api.Extensions;
 using api.Validators;
 using FluentValidation;
@@ -8,8 +6,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Supabase;
-
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +24,14 @@ builder
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Configuration.AddEnvironmentVariables();
 
-var bytes = Encoding.UTF8.GetBytes(builder.Configuration["Authentication:JwtSecret"]!);
+var jwtSecret = builder.Configuration["Authentication:JwtSecret"];
+
+if (jwtSecret is null)
+{
+    throw new InvalidOperationException("JwtSecret is missing");
+}
+
+var bytes = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder
     .Services.AddAuthentication()
@@ -55,10 +58,12 @@ builder
 
 builder.Services.AddControllers();
 
+const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-        name: MyAllowSpecificOrigins,
+        name: myAllowSpecificOrigins,
         policy =>
         {
             policy
@@ -90,7 +95,7 @@ var app = builder.Build();
 
 app.UseGlobalErrorHandling();
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(myAllowSpecificOrigins);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

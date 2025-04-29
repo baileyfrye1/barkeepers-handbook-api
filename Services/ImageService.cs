@@ -1,18 +1,17 @@
 using Supabase.Storage;
 
-namespace api.Data
-{
-	public class ImageService
-	{
-		private readonly StorageFileApi _storageBucket;
-		public ImageService(StorageFileApi storageBucket)
-		{
-			_storageBucket = storageBucket;
-		}
+namespace api.Services;
 
-		public async Task<string> UploadImage()
-		{
-			return "test";
-		}
+public class ImageService
+{
+	private readonly StorageFileApi _storageBucket;
+	public ImageService(StorageFileApi storageBucket)
+	{
+		_storageBucket = storageBucket;
+	}
+
+	public async Task<string> UploadImage()
+	{
+		return "test";
 	}
 }

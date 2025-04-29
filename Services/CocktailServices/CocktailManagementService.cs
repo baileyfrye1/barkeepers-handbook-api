@@ -1,13 +1,13 @@
-using api.DTOs.Cocktails;
+using api.DTOs.CocktailDTOs;
 using api.Models;
 
-namespace api.Data;
+namespace api.Services.CocktailServices;
 
 public class CocktailManagementService
 {
    private readonly IngredientService _ingredientService;
 
-   public CocktailManagementService(IngredientService ingredientService, CocktailService cocktailService)
+   public CocktailManagementService(IngredientService ingredientService)
    {
       _ingredientService = ingredientService;
    }
@@ -35,7 +35,7 @@ public class CocktailManagementService
                cocktailIngredient.Ingredient.Name
             );
 
-            if (ingredient == null)
+            if (ingredient is null)
             {
                var newIngredientModel = new Ingredient
                {
