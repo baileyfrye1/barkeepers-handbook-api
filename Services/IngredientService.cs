@@ -1,5 +1,6 @@
 using api.DTOs.IngredientDTOs;
 using api.Errors;
+using api.Mappers;
 using api.Models;
 using api.Validators;
 using FluentValidation;
@@ -22,7 +23,7 @@ public class IngredientService
 
 	public async Task<OneOf<Ingredient, ValidationFailed, UnexpectedError>> AddOneAsync(Ingredient ingredient)
 	{
-		var validationResult = _validator.Validate(ingredient);
+		var validationResult = _validator.Validate(ingredient.ToIngredientDto());
 
 		if (!validationResult.IsValid)
 		{

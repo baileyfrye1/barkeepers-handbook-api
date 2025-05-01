@@ -55,38 +55,38 @@ namespace api.Controllers
             );
         }
 
-        // [Authorize]
-        // [HttpPost]
-        // public async Task<IActionResult> AddCocktail(
-        //     [FromBody] CreateCocktailRequestDto cocktailRequestDto
-        // )
-        // {
-        //     if (!cocktailRequestDto.CocktailIngredients.Any())
-        //     {
-        //         return BadRequest(
-        //             "Error creating cocktail. Please provide cocktail ingredients."
-        //         );
-        //     }
-        //
-        //     var ingredientMap = await _cocktailManagementService.EnsureCocktailIngredientsExistAsync(cocktailRequestDto);
-        //
-        //     var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
-        //
-        //     return await newCocktailResult.Match<Task<IActionResult>>(
-        //         async cocktail =>
-        //         {
-        //             var newCocktailIngredientsList = _cocktailManagementService.MapCocktailIngredients(ingredientMap, cocktail, cocktailRequestDto);
-        //             
-        //             await _cocktailIngredientService.AddManyAsync(
-        //                 newCocktailIngredientsList
-        //             );
-        //             
-        //             return CreatedAtAction(nameof(GetOneCocktailById), new { id = cocktail.Id }, cocktail);
-        //         },
-        //         validate => Task.FromResult<IActionResult>(BadRequest(validate.MapToResponse())),
-        //         error => Task.FromResult<IActionResult>(StatusCode(500, error.Message))
-        //     );
-        // }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddCocktail(
+            [FromBody] CreateCocktailRequestDto cocktailRequestDto
+        )
+        {
+            if (!cocktailRequestDto.CocktailIngredients.Any())
+            {
+                return BadRequest(
+                    "Error creating cocktail. Please provide cocktail ingredients."
+                );
+            }
+        
+            var ingredientMap = await _cocktailManagementService.EnsureCocktailIngredientsExistAsync(cocktailRequestDto);
+        
+            var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
+        
+            return await newCocktailResult.Match<Task<IActionResult>>(
+                async cocktail =>
+                {
+                    var newCocktailIngredientsList = _cocktailManagementService.MapCocktailIngredients(ingredientMap, cocktail, cocktailRequestDto);
+                    
+                    await _cocktailIngredientService.AddManyAsync(
+                        newCocktailIngredientsList
+                    );
+                    
+                    return CreatedAtAction(nameof(GetOneCocktailById), new { id = cocktail.Id }, cocktail);
+                },
+                validate => Task.FromResult<IActionResult>(BadRequest(validate.MapToResponse())),
+                error => Task.FromResult<IActionResult>(StatusCode(500, error.Message))
+            );
+        }
 
         // TODO: Look into centralizing validation using FluentValidation
         [Authorize]

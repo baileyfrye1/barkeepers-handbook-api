@@ -1,5 +1,7 @@
 using api.DTOs.CocktailDTOs;
+using api.Errors;
 using api.Models;
+using api.Validators;
 
 namespace api.Services.CocktailServices;
 
@@ -31,27 +33,38 @@ public class CocktailManagementService
             )
          )
          {
-            ingredient = await _ingredientService.GetOneByNameAsync(
-               cocktailIngredient.Ingredient.Name
-            );
+            var getByNameResult = await _ingredientService.GetOneByNameAsync(cocktailIngredient.Ingredient.Name);
 
-            if (ingredient is null)
+            if (getByNameResult.TryPickT0(out var foundIngredient, out var notFound))
+            {
+               ingredient = foundIngredient;
+            }
+            else
             {
                var newIngredientModel = new Ingredient
                {
                   Name = cocktailIngredient.Ingredient.Name,
                   CreatedAt = DateTime.Now,
                };
-
-               ingredient = await _ingredientService.AddOneAsync(newIngredientModel);
+               
+               var addIngredientResult = await _ingredientService.AddOneAsync(newIngredientModel);
+               
+               addIngredientResult.Switch(
+                  i => ingredient = i,
+                  vf => new ValidationFailed(vf.Errors),
+                  error => new UnexpectedError("Ingredient could not be added.", error.Details)
+               );
             }
-
-            ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
+            
+            if (ingredient != null)
+            {
+               ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
+            } 
          }
 
          cocktailRequestDto.Tags.Add(cocktailIngredient.Ingredient.Name.ToLower());
       }
-
+      
       return ingredientMap;
    }
    

@@ -41,7 +41,6 @@ public class CocktailService
         var newCocktail = result.Model;
 
         return newCocktail;
-
     }
 
     public async Task<(List<CocktailDto> Cocktails, int TotalCount)> GetAllAsync(string? search, int page)
