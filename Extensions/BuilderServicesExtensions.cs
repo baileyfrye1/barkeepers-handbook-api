@@ -1,5 +1,7 @@
-using api.Data;
-using api.DTOs.Cocktails;
+using api.DTOs.CocktailDTOs;
+using api.DTOs.IngredientDTOs;
+using api.Services;
+using api.Services.CocktailServices;
 using api.Validators;
 using FluentValidation;
 
@@ -20,6 +22,7 @@ namespace api.Extensions
             services.AddScoped<IngredientService>();
             services.AddScoped<CocktailManagementService>();
             services.AddScoped<IValidator<CreateCocktailRequestDto>, CreateCocktailValidator>();
+            services.AddScoped<IValidator<IngredientDto>, CreateIngredientValidator>();
             return services;
         }
     }

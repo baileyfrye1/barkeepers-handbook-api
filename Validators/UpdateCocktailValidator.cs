@@ -1,4 +1,4 @@
-using api.DTOs.Cocktails;
+using api.DTOs.CocktailDTOs;
 using FluentValidation;
 
 namespace api.Validators

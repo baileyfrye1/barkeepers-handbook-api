@@ -1,40 +1,58 @@
-using api.DTOs.Ingredients;
+using api.DTOs.IngredientDTOs;
+using api.Errors;
 using api.Mappers;
 using api.Models;
+using api.Validators;
+using FluentValidation;
+using OneOf;
+using OneOf.Types;
 using Supabase;
 
-namespace api.Data
+namespace api.Services;
+
+public class IngredientService
 {
-	public class IngredientService
+	private readonly Client _supabase;
+	private readonly IValidator<IngredientDto> _validator;
+
+	public IngredientService(Client supabase, IValidator<IngredientDto> validator)
 	{
-		private readonly Client _supabase;
+		_supabase = supabase;
+		_validator = validator;
+	}
 
-		public IngredientService(Client supabase)
+	public async Task<OneOf<Ingredient, ValidationFailed, UnexpectedError>> AddOneAsync(Ingredient ingredient)
+	{
+		var validationResult = _validator.Validate(ingredient.ToIngredientDto());
+
+		if (!validationResult.IsValid)
 		{
-			_supabase = supabase;
+			return new ValidationFailed(validationResult.Errors);
+		}
+			
+		var result = await _supabase.From<Ingredient>().Insert(ingredient);
+
+		if (result.Model is null)
+		{
+			return new UnexpectedError("Error adding ingredient to database");
 		}
 
-		public async Task<Ingredient> AddOneAsync(Ingredient ingredient)
+		var newIngredient = result.Model;
+
+		return newIngredient;
+	}
+
+	public async Task<OneOf<Ingredient, NotFound>> GetOneByNameAsync(string name)
+	{
+		var result = await _supabase.From<Ingredient>().Where(i => i.Name == name).Get();
+
+		if (result.Model is null)
 		{
-			var result = await _supabase.From<Ingredient>().Insert(ingredient);
-
-			var newIngredient = result.Model;
-
-			return newIngredient;
+			return new NotFound();
 		}
+			
+		var ingredient = result.Model;
 
-		public async Task<Ingredient?> GetOneByNameAsync(string name)
-		{
-			var result = await _supabase.From<Ingredient>().Where(i => i.Name == name).Get();
-
-			if (result.Model == null)
-			{
-				return null;
-			}
-
-			var ingredient = result.Model;
-
-			return ingredient;
-		}
+		return ingredient;
 	}
 }

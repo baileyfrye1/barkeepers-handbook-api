@@ -1,4 +1,4 @@
-using api.DTOs.CocktailIngredients;
+using api.DTOs.CocktailIngredientDTOs;
 using api.Models;
 
 namespace api.Mappers
