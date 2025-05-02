@@ -31,9 +31,9 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCocktails([FromQuery] string? search, int page)
+        public async Task<IActionResult> GetAllCocktails([FromQuery] string? search, int page, bool countOnly = false)
         {
-            var cocktailsDto = await _cocktailService.GetAllAsync(search, page);
+            var cocktailsDto = await _cocktailService.GetAllAsync(search, page, countOnly);
             return Ok(new { cocktailsDto.Cocktails, cocktailsDto.TotalCount});
         }
 

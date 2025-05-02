@@ -43,14 +43,19 @@ public class CocktailService
         return newCocktail;
     }
 
-    public async Task<(List<CocktailDto> Cocktails, int TotalCount)> GetAllAsync(string? search, int page)
+    public async Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly)
     {
+        var count = await _supabase.From<Models.Cocktail>().Select("*").Count(Constants.CountType.Exact);
+        if (countOnly)
+        {
+            return (null, count);
+        }
+        
         // Pagination Variables
         const int itemsPerPage = 10;
         var offset = page == 1 ? 0 : (page - 1) * itemsPerPage;
         var itemLimit = (page * itemsPerPage) - 1;
         
-        var count = await _supabase.From<Models.Cocktail>().Select("*").Count(Constants.CountType.Exact);
         var query = _supabase.From<Models.Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)");
 
         if (!string.IsNullOrEmpty(search))
