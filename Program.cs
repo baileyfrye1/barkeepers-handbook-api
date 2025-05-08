@@ -67,7 +67,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:3000", "https://barkeepers-handbook-frontend.pages.dev")
+                .WithOrigins("http://localhost:3000", "https://barkeepers-handbook-frontend.pages.dev", "https://barkeepershandbook.com")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
