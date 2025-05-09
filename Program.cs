@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using System.Text;
+using api.Authentication;
 using api.Extensions;
 using api.Validators;
 using FluentValidation;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Supabase;
+using Clerk.BackendAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,28 +36,43 @@ if (jwtSecret is null)
 
 var bytes = Encoding.UTF8.GetBytes(jwtSecret);
 
-builder
-    .Services.AddAuthentication()
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(bytes),
-            ValidAudience = builder.Configuration["Authentication:ValidAudience"],
-            ValidIssuer = builder.Configuration["Authentication:ValidIssuer"],
-            ValidateLifetime = true,
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                context.Token = context.Request.Cookies["access_token"];
-                return Task.CompletedTask;
-            }
-        };
-    });
+// builder
+//     .Services.AddAuthentication()
+//     .AddJwtBearer(options =>
+//     {
+//         options.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             ValidateIssuerSigningKey = true,
+//             IssuerSigningKey = new SymmetricSecurityKey(bytes),
+//             ValidateAudience = false,
+//             // ValidAudience = builder.Configuration["Authentication:ValidAudience"],
+//             // ValidIssuer = builder.Configuration["Authentication:ValidIssuer"],
+//             ValidateIssuer = false,
+//             ValidateLifetime = true,
+//         };
+//
+//         options.Events = new JwtBearerEvents
+//         {
+//             OnMessageReceived = context =>
+//             {
+//                 var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+//                 if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+//                 {
+//                     context.Token = authHeader.Substring("Bearer ".Length).Trim();
+//                 }
+//                 else if (context.Request.Cookies.ContainsKey("__session"))
+//                 {
+//                     context.Token = context.Request.Cookies["__session"];
+//                 }
+//                 return Task.CompletedTask;
+//             },
+//             OnAuthenticationFailed = context =>
+//             {
+//                 Console.WriteLine("Token failed: " + context.Exception.Message);
+//                 return Task.CompletedTask;
+//             }
+//         };
+//     });
 
 builder.Services.AddControllers();
 
@@ -76,6 +94,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddOpenApi();
+
+var clerkSecretKey = builder.Configuration["Clerk:SecretKey"];
+builder.Services.AddSingleton(new ClerkAuthSettings(clerkSecretKey));
 
 // Add Dependency Injection
 builder.Services.AddDependencies();
