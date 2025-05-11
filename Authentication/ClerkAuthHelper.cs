@@ -25,7 +25,7 @@ public class ClerkAuthHelper
 
         var options = new AuthenticateRequestOptions(
             secretKey: secretKey,
-            authorizedParties: ["http://localhost:3000"]
+            authorizedParties: ["http://localhost:3000", "https://barkeepershandbook.com"]
         );
         
         var requestState = await AuthenticateRequest.AuthenticateRequestAsync(request, options);

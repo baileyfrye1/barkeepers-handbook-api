@@ -1,3 +1,5 @@
+using api.DTOs;
+using api.DTOs.RatingDTOs;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -32,5 +34,8 @@ namespace api.Models
 
         [Reference(typeof(CocktailIngredient))]
         public List<CocktailIngredient> CocktailIngredients { get; set; } = [];
+
+        [Reference(typeof(Rating))]
+        public List<Rating> Ratings { get; set; } = [];
     }
 }

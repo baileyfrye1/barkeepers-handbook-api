@@ -23,7 +23,7 @@ namespace api.Extensions
             services.AddScoped<CocktailManagementService>();
             services.AddScoped<IValidator<CreateCocktailRequestDto>, CreateCocktailValidator>();
             services.AddScoped<IValidator<IngredientDto>, CreateIngredientValidator>();
-            services.AddScoped<ReviewService>();
+            services.AddScoped<RatingService>();
             return services;
         }
     }

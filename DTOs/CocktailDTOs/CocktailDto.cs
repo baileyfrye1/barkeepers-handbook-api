@@ -1,4 +1,5 @@
 using api.DTOs.CocktailIngredientDTOs;
+using api.DTOs.RatingDTOs;
 
 namespace api.DTOs.CocktailDTOs;
 
@@ -13,6 +14,8 @@ public class CocktailDto
     public List<string> Tags { get; set; } = [];
 
     public List<CocktailIngredientDto> CocktailIngredients { get; set; } = [];
+    
+    public CocktailRatingObjectDto RatingsData { get; set; } = new();
 
     public DateTime CreatedAt { get; set; }
 

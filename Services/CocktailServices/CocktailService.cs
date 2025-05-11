@@ -56,7 +56,8 @@ public class CocktailService
         var offset = page == 1 ? 0 : (page - 1) * itemsPerPage;
         var itemLimit = (page * itemsPerPage) - 1;
         
-        var query = _supabase.From<Models.Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)");
+        var query = _supabase.From<Models.Cocktail>().Select("*");
+        // var query = _supabase.From<Models.Cocktail>().Select("*");
 
         if (!string.IsNullOrEmpty(search))
         {

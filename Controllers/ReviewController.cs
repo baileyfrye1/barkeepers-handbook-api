@@ -11,11 +11,11 @@ namespace api.Controllers;
     [Route("api/v1/[controller]")]
     public class ReviewsController : ControllerBase
     {
-        private readonly ReviewService _reviewService;
+        private readonly RatingService _ratingService;
 
-        public ReviewsController(ReviewService reviewService)
+        public ReviewsController(RatingService ratingService)
         {
-            _reviewService = reviewService;
+            _ratingService = ratingService;
         }
 
         [HttpGet]
@@ -27,7 +27,7 @@ namespace api.Controllers;
                 throw new InvalidOperationException("Clerk Secret Key is not configured.");
             }
             
-            if (Request == null)
+            if (Request.Cookies == null)
             {
                 throw new InvalidOperationException("Request object is null.");
             }
@@ -41,14 +41,9 @@ namespace api.Controllers;
                     return Unauthorized();
                 }
 
-                foreach (var claim in state.Claims.Claims)
-                {
-                    Console.WriteLine(claim);
-                }
-                
                 var userId = state.Claims.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 
-                var reviews = await _reviewService.GetReviewsAsync(userId);
+                var reviews = await _ratingService.GetReviewsAsync(userId);
                 return Ok(reviews);
             }
             catch (Exception ex)
