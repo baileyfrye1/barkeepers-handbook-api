@@ -106,8 +106,17 @@ public class CocktailService
         var result = await _supabase.From<Models.Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
 
         var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
+        
+        var cocktailsWithRatings = cocktails.Select(async c =>
+        {
+            var fetchedRatings = await _ratingService.GetAllRatingsByIdAsync(c.Id);
+            c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
+            return c;
+        }).ToList();
 
-        return cocktails;
+        var awaitedCocktails = (await Task.WhenAll(cocktailsWithRatings)).ToList();
+
+        return awaitedCocktails;
     }
 
     public async Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id)
@@ -124,6 +133,10 @@ public class CocktailService
         }
 
         var cocktail = result.Model.ToCocktailDto();
+        
+        var fetchedRating = await _ratingService.GetAllRatingsByIdAsync(id);
+
+        cocktail.RatingsData.Ratings = fetchedRating.Select(r => r.ToCocktailRatingDto()).ToList();
 
         return cocktail;
     }
