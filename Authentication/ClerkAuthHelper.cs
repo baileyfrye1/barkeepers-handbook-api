@@ -22,7 +22,7 @@ public class ClerkAuthHelper
         {
             throw new InvalidOperationException("Clerk Secret Key is null or empty.");
         }
-
+        
         var options = new AuthenticateRequestOptions(
             secretKey: secretKey,
             authorizedParties: ["http://localhost:3000", "https://barkeepershandbook.com"]

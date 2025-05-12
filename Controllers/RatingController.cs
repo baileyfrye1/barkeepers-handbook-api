@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using api.Authentication;
+using api.DTOs.RatingDTOs;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,5 +52,24 @@ namespace api.Controllers;
                 Console.WriteLine("Error in ClerkAuthHelper: " + ex.ToString());
                 throw;
             }
+        }
+
+        [HttpPost("{cocktailId:int}")]
+        public async Task<IActionResult> CreateRating([FromBody] CocktailRatingDto ratingDto, [FromRoute] int cocktailId)
+        {
+            var settings = HttpContext.RequestServices.GetRequiredService<ClerkAuthSettings>();
+            
+            var (isSignedIn, state) = await ClerkAuthHelper.IsSignedInAsync(Request, settings.SecretKey);
+            
+            if (!isSignedIn)
+            {
+                return Unauthorized();
+            }
+
+            var userId = state.Claims.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                
+            var newRatingResult = await _ratingService.CreateRatingAsync(ratingDto, cocktailId, userId);
+            
+            return CreatedAtAction(nameof(GetAllRatings), new { id = newRatingResult.Id }, newRatingResult);
         }
     }

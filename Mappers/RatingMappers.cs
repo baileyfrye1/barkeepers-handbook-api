@@ -31,4 +31,16 @@ public static class RatingMappers
             Rating = ratingDto.Rating,
         };
     }
+
+    public static Rating ToRatingFromDto(this CocktailRatingDto ratingDto, int cocktailId, string userId)
+    {
+        return new Rating
+        {
+            CocktailId = cocktailId,
+            UserId = userId,
+            RatingValue = ratingDto.Rating,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now,
+        };
+    }
 }

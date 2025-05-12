@@ -25,7 +25,7 @@ public class CocktailService
         _ratingService = ratingService;
     }
 
-    public async Task<OneOf<Models.Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
+    public async Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
     {
         var validationResult = _validator.Validate(cocktailRequestDto);
 
@@ -74,21 +74,7 @@ public class CocktailService
         var result = await query.Range(offset, itemLimit).Get();
 
         var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
-        //
-        // var cocktailsWithRatings = cocktails.Select(async c =>
-        // {
-        //     List<RatingDto> ratings = [];
-        //     var fetchedRatings = await _ratingService.GetAllRatingsByIdAsync(c.Id);
-        //
-        //     if (fetchedRatings is null)
-        //     {
-        //         c.RatingsData.Ratings = ratings.Select(r => r.ToCocktailRatingDto()).ToList();
-        //     }
-        //     
-        //     c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
-        //     return c;
-        // }).ToList();
-        //
+        
         var cocktailsWithRatings = cocktails.Select(async c =>
         {
             var fetchedRatings = await _ratingService.GetAllRatingsByIdAsync(c.Id);

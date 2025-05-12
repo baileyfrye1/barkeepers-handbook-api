@@ -15,10 +15,13 @@ public class RatingService
         _supabase = supabase;
     }
 
-    public async void CreateRatingAsync(Rating rating)
+    public async Task<Rating> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId)
     {
-        var ratingResult = await _supabase.From<Rating>().Insert(rating);
-        var model = ratingResult.Model;
+        var ratingModel = ratingDto.ToRatingFromDto(cocktailId, userId);
+        
+        var ratingResult = await _supabase.From<Rating>().Insert(ratingModel);
+        
+        return ratingResult.Model;
     }
 
     public async Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId)
