@@ -24,11 +24,11 @@ public static class RatingMappers
         };
     }
     
-    public static CocktailRatingObjectDto ToCocktailRatingObjectDto(this Rating ratingModel)
+    public static CocktailRatingDto ToCocktailRatingDto(this RatingDto ratingDto)
     {
-        return new CocktailRatingObjectDto()
+        return new CocktailRatingDto()
         {
-            Ratings = new List<CocktailRatingDto>(),
+            Rating = ratingDto.Rating,
         };
     }
 }

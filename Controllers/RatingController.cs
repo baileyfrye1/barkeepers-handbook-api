@@ -9,17 +9,17 @@ namespace api.Controllers;
 
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class ReviewsController : ControllerBase
+    public class RatingsController : ControllerBase
     {
         private readonly RatingService _ratingService;
 
-        public ReviewsController(RatingService ratingService)
+        public RatingsController(RatingService ratingService)
         {
             _ratingService = ratingService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllReviews()
+        public async Task<IActionResult> GetAllRatings()
         {
             var settings = HttpContext.RequestServices.GetRequiredService<ClerkAuthSettings>();
             if (settings.SecretKey == null)
@@ -43,8 +43,8 @@ namespace api.Controllers;
 
                 var userId = state.Claims.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 
-                var reviews = await _ratingService.GetReviewsAsync(userId);
-                return Ok(reviews);
+                var ratings = await _ratingService.GetAllRatingsByUserAsync(userId);
+                return Ok(ratings);
             }
             catch (Exception ex)
             {

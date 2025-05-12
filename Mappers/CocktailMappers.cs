@@ -16,18 +16,18 @@ namespace api.Mappers
 				Featured = cocktailModel.Featured,
 				Tags = cocktailModel.Tags,
 				CocktailIngredients = cocktailModel.CocktailIngredients.Select(c => c.ToCocktailIngredientDto()).ToList(),
-				RatingsData = new CocktailRatingObjectDto
-				{
-					Ratings = cocktailModel.Ratings.Select(r => r.ToCocktailRatingDto()).ToList()
-				},
+				// RatingsData = new CocktailRatingObjectDto
+				// {
+				// 	Ratings = cocktailModel.Ratings != null ? cocktailModel.Ratings.Select(r => r.ToCocktailRatingDto()).ToList() : new List<CocktailRatingDto>()
+				// },
 				CreatedAt = cocktailModel.CreatedAt,
 				UpdatedAt = cocktailModel.UpdatedAt
 			};
 		}
 
-		public static ReviewedCocktailDto ToCocktailReviewDto(this Cocktail cocktailModel)
+		public static RatedCocktailDto ToCocktailReviewDto(this Cocktail cocktailModel)
 		{
-			return new ReviewedCocktailDto
+			return new RatedCocktailDto
 			{
 				Id = cocktailModel.Id,
 				Name = cocktailModel.Name

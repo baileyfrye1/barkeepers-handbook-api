@@ -15,20 +15,29 @@ public class RatingService
         _supabase = supabase;
     }
 
-    public async void CreateReviewAsync(Rating rating)
+    public async void CreateRatingAsync(Rating rating)
     {
-        var reviewResult = await _supabase.From<Rating>().Insert(rating);
-        var model = reviewResult.Model;
+        var ratingResult = await _supabase.From<Rating>().Insert(rating);
+        var model = ratingResult.Model;
     }
 
-    public async Task<List<RatingDto>> GetReviewsAsync(string userId)
+    public async Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId)
     {
         var query = _supabase.From<Rating>();
 
         var result = await query.Where(r => r.UserId == userId).Get();
 
-        var reviews = result.Models.Select(r => r.ToRatingDto()).ToList();
+        var ratings = result.Models.Select(r => r.ToRatingDto()).ToList();
         
-        return reviews;
+        return ratings;
+    }
+
+    public async Task<List<RatingDto>> GetAllRatingsByIdAsync(int cocktailId)
+    {
+        var query = await _supabase.From<Rating>().Where(r => r.CocktailId == cocktailId).Get();
+
+        return query.Models.Count == 0 
+            ? []
+            : query.Models.Select(r => r.ToRatingDto()).ToList();
     }
 }

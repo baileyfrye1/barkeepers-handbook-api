@@ -35,7 +35,7 @@ namespace api.Models
         [Reference(typeof(CocktailIngredient))]
         public List<CocktailIngredient> CocktailIngredients { get; set; } = [];
 
-        [Reference(typeof(Rating))]
-        public List<Rating> Ratings { get; set; } = [];
+        // [Reference(typeof(Rating))]
+        // public List<Rating> Ratings { get; set; } = [];
     }
 }

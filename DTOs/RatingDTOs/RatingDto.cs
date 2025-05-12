@@ -6,6 +6,6 @@ public class RatingDto
 {
    public int Id { get; set; } 
    public int Rating { get; set; }
-   public ReviewedCocktailDto Cocktail { get; set; } = new ReviewedCocktailDto();
+   public RatedCocktailDto Cocktail { get; set; } = new RatedCocktailDto();
    public string UserId { get; set; } = String.Empty;
 }

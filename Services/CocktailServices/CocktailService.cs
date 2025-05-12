@@ -1,23 +1,28 @@
 using api.DTOs.CocktailDTOs;
+using api.DTOs.RatingDTOs;
 using api.Errors;
 using api.Mappers;
+using api.Models;
 using api.Validators;
 using FluentValidation;
 using OneOf;
 using OneOf.Types;
 using Supabase.Postgrest;
+using Client = Supabase.Client;
 
 namespace api.Services.CocktailServices;
 
 public class CocktailService
 {
-    private readonly Supabase.Client _supabase;
+    private readonly Client _supabase;
+    private readonly RatingService _ratingService;
     private readonly IValidator<CreateCocktailRequestDto> _validator;
 
-    public CocktailService(Supabase.Client supabase, IValidator<CreateCocktailRequestDto> validator)
+    public CocktailService(Client supabase, IValidator<CreateCocktailRequestDto> validator, RatingService ratingService)
     {
         _supabase = supabase;
         _validator = validator;
+        _ratingService = ratingService;
     }
 
     public async Task<OneOf<Models.Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
@@ -42,10 +47,10 @@ public class CocktailService
 
         return newCocktail;
     }
-
+    
     public async Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly)
     {
-        var count = await _supabase.From<Models.Cocktail>().Select("*").Count(Constants.CountType.Exact);
+        var count = await _supabase.From<Cocktail>().Select("*").Count(Constants.CountType.Exact);
         if (countOnly)
         {
             return (null, count);
@@ -56,8 +61,7 @@ public class CocktailService
         var offset = page == 1 ? 0 : (page - 1) * itemsPerPage;
         var itemLimit = (page * itemsPerPage) - 1;
         
-        var query = _supabase.From<Models.Cocktail>().Select("*");
-        // var query = _supabase.From<Models.Cocktail>().Select("*");
+        var query = _supabase.From<Cocktail>().Select("*");
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -70,8 +74,31 @@ public class CocktailService
         var result = await query.Range(offset, itemLimit).Get();
 
         var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
+        //
+        // var cocktailsWithRatings = cocktails.Select(async c =>
+        // {
+        //     List<RatingDto> ratings = [];
+        //     var fetchedRatings = await _ratingService.GetAllRatingsByIdAsync(c.Id);
+        //
+        //     if (fetchedRatings is null)
+        //     {
+        //         c.RatingsData.Ratings = ratings.Select(r => r.ToCocktailRatingDto()).ToList();
+        //     }
+        //     
+        //     c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
+        //     return c;
+        // }).ToList();
+        //
+        var cocktailsWithRatings = cocktails.Select(async c =>
+        {
+            var fetchedRatings = await _ratingService.GetAllRatingsByIdAsync(c.Id);
+            c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
+            return c;
+        }).ToList();
+        
+        var awaitedCocktails = (await Task.WhenAll(cocktailsWithRatings)).ToList();
 
-        return (Cocktails: cocktails, TotalCount: count);
+        return (Cocktails: awaitedCocktails, TotalCount: count);
     }
 
     public async Task<List<CocktailDto>> GetFeaturedAsync()
