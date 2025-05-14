@@ -35,7 +35,7 @@ if (jwtSecret is null)
     throw new InvalidOperationException("JwtSecret is missing");
 }
 
-var issuer = builder.Environment.IsDevelopment() ? "https://simple-phoenix-47.clerk.accounts.dev" : "https://barkeepershandbook.com";
+var issuer = builder.Environment.IsDevelopment() ? "https://simple-phoenix-47.clerk.accounts.dev" : "https://clerk.barkeepershandbook.com";
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
