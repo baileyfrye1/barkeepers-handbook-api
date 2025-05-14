@@ -6,7 +6,7 @@
 // namespace api.Controllers
 // {
 //     [ApiController]
-//     [Route("api/v1/[controller]")]
+//     [Route("v1/[controller]")]
 //     public class AuthController : ControllerBase
 //     {
 //         private readonly AuthService _authService;

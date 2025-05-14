@@ -25,10 +25,13 @@ public class ClerkAuthHelper
         
         var options = new AuthenticateRequestOptions(
             secretKey: secretKey,
-            authorizedParties: ["http://localhost:3000", "https://barkeepershandbook.com"]
+            authorizedParties: ["http://localhost:3000", "https://barkeepershandbook.com"],
+            jwtKey: request.Headers.Authorization.ToString()
         );
         
         var requestState = await AuthenticateRequest.AuthenticateRequestAsync(request, options);
+        
+        Console.WriteLine(requestState.Token);
         
         return (requestState.IsSignedIn(), requestState);
  

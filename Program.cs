@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Supabase;
 using Clerk.BackendAPI;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,45 +35,43 @@ if (jwtSecret is null)
     throw new InvalidOperationException("JwtSecret is missing");
 }
 
-var bytes = Encoding.UTF8.GetBytes(jwtSecret);
+var issuer = builder.Environment.IsDevelopment() ? "https://simple-phoenix-47.clerk.accounts.dev" : "https://barkeepers-handbook.com";
 
-// builder
-//     .Services.AddAuthentication()
-//     .AddJwtBearer(options =>
-//     {
-//         options.TokenValidationParameters = new TokenValidationParameters
-//         {
-//             ValidateIssuerSigningKey = true,
-//             IssuerSigningKey = new SymmetricSecurityKey(bytes),
-//             ValidateAudience = false,
-//             // ValidAudience = builder.Configuration["Authentication:ValidAudience"],
-//             // ValidIssuer = builder.Configuration["Authentication:ValidIssuer"],
-//             ValidateIssuer = false,
-//             ValidateLifetime = true,
-//         };
-//
-//         options.Events = new JwtBearerEvents
-//         {
-//             OnMessageReceived = context =>
-//             {
-//                 var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-//                 if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-//                 {
-//                     context.Token = authHeader.Substring("Bearer ".Length).Trim();
-//                 }
-//                 else if (context.Request.Cookies.ContainsKey("__session"))
-//                 {
-//                     context.Token = context.Request.Cookies["__session"];
-//                 }
-//                 return Task.CompletedTask;
-//             },
-//             OnAuthenticationFailed = context =>
-//             {
-//                 Console.WriteLine("Token failed: " + context.Exception.Message);
-//                 return Task.CompletedTask;
-//             }
-//         };
-//     });
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = issuer;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateLifetime = true,
+            ValidateAudience = false,
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                {
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                }
+                else if (context.Request.Cookies.ContainsKey("__session"))
+                {
+                    context.Token = context.Request.Cookies["__session"];
+                }
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("Token failed: " + context.Exception.Message);
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 builder.Services.AddControllers();
 
@@ -112,7 +111,18 @@ var supabase = new Client(supabaseUrl, supabaseKey, options);
 // Register Supabase as a singleton service
 builder.Services.AddSingleton(supabase);
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear(); // Clear defaults so it trusts all
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+// Trust forwarded headers from proxies (like Fly.io)
+
+app.UseForwardedHeaders();
 
 app.UseGlobalErrorHandling();
 
