@@ -43,6 +43,11 @@ public class RatingService : IRatingService
             ? []
             : query.Models.Select(r => r.ToRatingDto()).ToList();
     }
+
+    public async Task DeleteRatingByIdAsync(string userId, int id)
+    {
+        await _supabase.From<Rating>().Where(r => r.Id == id && r.UserId == userId).Delete();
+    }
 }
 
 public interface IRatingService
@@ -52,4 +57,6 @@ public interface IRatingService
     Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId);
 
     Task<List<RatingDto>> GetAllRatingsByIdAsync(int cocktailId);
+    
+    Task DeleteRatingByIdAsync(string userId, int id);
 }

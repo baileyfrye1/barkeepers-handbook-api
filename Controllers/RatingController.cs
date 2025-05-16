@@ -42,4 +42,14 @@ namespace api.Controllers;
             
             return CreatedAtAction(nameof(GetAllRatings), new { id = newRatingResult.Id }, newRatingResult);
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteRating([FromRoute] int id)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            await _ratingService.DeleteRatingByIdAsync(userId, id);
+
+            return NoContent();
+        }
     }
