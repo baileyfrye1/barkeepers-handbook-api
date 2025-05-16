@@ -10,7 +10,7 @@ using Supabase;
 
 namespace api.Services;
 
-public class IngredientService
+public class IngredientService : IIngredientService
 {
 	private readonly Client _supabase;
 	private readonly IValidator<IngredientDto> _validator;
@@ -55,4 +55,10 @@ public class IngredientService
 
 		return ingredient;
 	}
+}
+
+public interface IIngredientService
+{
+	Task<OneOf<Ingredient, ValidationFailed, UnexpectedError>> AddOneAsync(Ingredient ingredient);
+	Task<OneOf<Ingredient, NotFound>> GetOneByNameAsync(string name);
 }

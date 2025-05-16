@@ -6,7 +6,7 @@ using Supabase;
 
 namespace api.Services;
 
-public class RatingService
+public class RatingService : IRatingService
 {
     private readonly Client _supabase;
 
@@ -43,4 +43,13 @@ public class RatingService
             ? []
             : query.Models.Select(r => r.ToRatingDto()).ToList();
     }
+}
+
+public interface IRatingService
+{
+    Task<Rating> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId);
+
+    Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId);
+
+    Task<List<RatingDto>> GetAllRatingsByIdAsync(int cocktailId);
 }

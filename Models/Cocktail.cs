@@ -21,7 +21,7 @@ namespace api.Models
         public List<string> Tags { get; set; } = [];
 
         [Column("image")]
-        public IFormFile? Image { get; set; }
+        public string ImageUrl { get; set; }
 
         [Column("steps")]
         public List<string>? Steps { get; set; }
@@ -34,8 +34,5 @@ namespace api.Models
 
         [Reference(typeof(CocktailIngredient))]
         public List<CocktailIngredient> CocktailIngredients { get; set; } = [];
-
-        // [Reference(typeof(Rating))]
-        // public List<Rating> Ratings { get; set; } = [];
     }
 }

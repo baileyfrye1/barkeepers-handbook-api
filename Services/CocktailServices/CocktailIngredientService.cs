@@ -5,7 +5,7 @@ using Supabase;
 
 namespace api.Services.CocktailServices;
 
-public class CocktailIngredientService
+public class CocktailIngredientService : ICocktailIngredientService
 {
 	private readonly Client _supabase;
 	public CocktailIngredientService(Client supabase)
@@ -21,4 +21,9 @@ public class CocktailIngredientService
 
 		return newCocktailIngredients;
 	}
+}
+
+public interface ICocktailIngredientService
+{
+	Task<List<CocktailIngredientDto>> AddManyAsync(List<CocktailIngredient> cocktailIngredients);
 }

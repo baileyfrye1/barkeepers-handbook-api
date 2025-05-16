@@ -5,11 +5,11 @@ using api.Validators;
 
 namespace api.Services.CocktailServices;
 
-public class CocktailManagementService
+public class CocktailManagementService : ICocktailManagementService
 {
-   private readonly IngredientService _ingredientService;
+   private readonly IIngredientService _ingredientService;
 
-   public CocktailManagementService(IngredientService ingredientService)
+   public CocktailManagementService(IIngredientService ingredientService)
    {
       _ingredientService = ingredientService;
    }
@@ -100,4 +100,14 @@ public class CocktailManagementService
       }
       return newCocktailIngredientsList;
    }
+}
+
+public interface ICocktailManagementService
+{
+   Task<Dictionary<string, Ingredient>> EnsureCocktailIngredientsExistAsync(CreateCocktailRequestDto cocktailRequestDto);
+   List<CocktailIngredient> MapCocktailIngredients(
+      Dictionary<string, Ingredient> ingredientMap,
+      Cocktail cocktail,
+      CreateCocktailRequestDto cocktailRequestDto
+   );
 }

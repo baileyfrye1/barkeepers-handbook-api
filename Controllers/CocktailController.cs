@@ -12,29 +12,29 @@ namespace api.Controllers
     [Route("v1/[controller]")]
     public class CocktailsController : ControllerBase
     {
-        private readonly CocktailService _cocktailService;
-        private readonly CocktailIngredientService _cocktailIngredientService;
-        private readonly IngredientService _ingredientService;
-        private readonly CocktailManagementService _cocktailManagementService;
+        private readonly ICocktailService _cocktailService;
+        private readonly ICocktailIngredientService _cocktailIngredientService;
+        private readonly ICocktailManagementService _cocktailManagementService;
+        private readonly ICocktailImageService _imageService;
 
         public CocktailsController(
-            CocktailService cocktailService,
-            CocktailIngredientService cocktailIngredientService,
-            IngredientService ingredientService,
-            CocktailManagementService cocktailManagementService
+            ICocktailService cocktailService,
+            ICocktailIngredientService cocktailIngredientService,
+            ICocktailManagementService cocktailManagementService,
+            ICocktailImageService imageService
         )
         {
             _cocktailService = cocktailService;
             _cocktailIngredientService = cocktailIngredientService;
-            _ingredientService = ingredientService;
             _cocktailManagementService = cocktailManagementService;
+            _imageService = imageService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllCocktails([FromQuery] string? search, int page, bool countOnly = false)
         {
             var cocktailsDto = await _cocktailService.GetAllAsync(search, page, countOnly);
-            return Ok(new { cocktailsDto.Cocktails, cocktailsDto.TotalCount});
+            return Ok(new { cocktailsDto.Cocktails, cocktailsDto.TotalCount });
         }
 
         [HttpGet("featured")]
@@ -50,33 +50,36 @@ namespace api.Controllers
             var result = await _cocktailService.GetOneByIdAsync(id);
 
             return result.Match<IActionResult>(
-               c => Ok(c),
-               _ => NotFound()
+                c => Ok(c),
+                _ => NotFound()
             );
         }
 
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCocktail(
-            [FromBody] CreateCocktailRequestDto cocktailRequestDto
-        )
-        {
-            if (!cocktailRequestDto.CocktailIngredients.Any())
-            {
-                return BadRequest(
-                    "Error creating cocktail. Please provide cocktail ingredients."
-                );
-            }
-        
+            [FromForm] CreateCocktailRequestDto cocktailRequestDto 
+    )
+
+    {
+            // if (!cocktailRequestDto.CocktailIngredients.Any())
+            // {
+            //     return BadRequest(
+            //         "Error creating cocktail. Please provide cocktail ingredients."
+            //     );
+            // }
+
+            var imageUrl = await _imageService.UploadImage(cocktailRequestDto.Image);
+            
             var ingredientMap = await _cocktailManagementService.EnsureCocktailIngredientsExistAsync(cocktailRequestDto);
-        
-            var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
+            
+            var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto, imageUrl);
         
             return await newCocktailResult.Match<Task<IActionResult>>(
                 async cocktail =>
                 {
                     var newCocktailIngredientsList = _cocktailManagementService.MapCocktailIngredients(ingredientMap, cocktail, cocktailRequestDto);
-                    
+
                     await _cocktailIngredientService.AddManyAsync(
                         newCocktailIngredientsList
                     );

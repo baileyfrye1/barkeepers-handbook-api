@@ -16,10 +16,7 @@ namespace api.Mappers
 				Featured = cocktailModel.Featured,
 				Tags = cocktailModel.Tags,
 				CocktailIngredients = cocktailModel.CocktailIngredients.Select(c => c.ToCocktailIngredientDto()).ToList(),
-				// RatingsData = new CocktailRatingObjectDto
-				// {
-				// 	Ratings = cocktailModel.Ratings != null ? cocktailModel.Ratings.Select(r => r.ToCocktailRatingDto()).ToList() : new List<CocktailRatingDto>()
-				// },
+				ImageUrl = cocktailModel.ImageUrl,
 				CreatedAt = cocktailModel.CreatedAt,
 				UpdatedAt = cocktailModel.UpdatedAt
 			};
@@ -34,14 +31,14 @@ namespace api.Mappers
 			};
 		}
 
-		public static Cocktail ToCocktailFromCreateDto(this CreateCocktailRequestDto cocktailRequestDto)
+		public static Cocktail ToCocktailFromCreateDto(this CreateCocktailRequestDto cocktailRequestDto, string imageUrl)
 		{
 			return new Cocktail
 			{
 				Name = cocktailRequestDto.Name,
 				Featured = cocktailRequestDto.Featured,
 				Tags = cocktailRequestDto.Tags,
-				// Image = cocktailRequestDto.Image,
+				ImageUrl = imageUrl,
 				CreatedAt = DateTime.Now,
 				UpdatedAt = DateTime.Now,
 			};

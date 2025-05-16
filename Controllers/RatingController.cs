@@ -9,9 +9,9 @@ namespace api.Controllers;
     [Route("/v1/[controller]")]
     public class RatingsController : ControllerBase
     {
-        private readonly RatingService _ratingService;
+        private readonly IRatingService _ratingService;
 
-        public RatingsController(RatingService ratingService)
+        public RatingsController(IRatingService ratingService)
         {
             _ratingService = ratingService;
         }

@@ -13,9 +13,9 @@ public class CreateCocktailRequestDto
     public List<string> Tags { get; set; } = [];
 
     [Required]
-    public List<CocktailIngredientDto> CocktailIngredients { get; set; } = [];
+    public List<CocktailIngredientDto>? CocktailIngredients { get; set; } = [];
 
-    // public IFormFile Image { get; set; }
+    public IFormFile Image { get; set; }
 
     // public List<string> Steps { get; set; }
 }

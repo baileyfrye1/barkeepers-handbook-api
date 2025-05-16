@@ -1,5 +1,4 @@
 using api.DTOs.CocktailDTOs;
-using api.DTOs.RatingDTOs;
 using api.Errors;
 using api.Mappers;
 using api.Models;
@@ -12,20 +11,20 @@ using Client = Supabase.Client;
 
 namespace api.Services.CocktailServices;
 
-public class CocktailService
+public class CocktailService : ICocktailService
 {
     private readonly Client _supabase;
-    private readonly RatingService _ratingService;
+    private readonly IRatingService _ratingService;
     private readonly IValidator<CreateCocktailRequestDto> _validator;
 
-    public CocktailService(Client supabase, IValidator<CreateCocktailRequestDto> validator, RatingService ratingService)
+    public CocktailService(Client supabase, IValidator<CreateCocktailRequestDto> validator, IRatingService ratingService)
     {
         _supabase = supabase;
         _validator = validator;
         _ratingService = ratingService;
     }
 
-    public async Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
+    public async Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto, string imageUrl)
     {
         var validationResult = _validator.Validate(cocktailRequestDto);
 
@@ -34,9 +33,9 @@ public class CocktailService
             return new ValidationFailed(validationResult.Errors);
         }
 
-        var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto();
+        var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(imageUrl);
 
-        var result = await _supabase.From<Models.Cocktail>().Insert(cocktailModel);
+        var result = await _supabase.From<Cocktail>().Insert(cocktailModel);
 
         if (result.Model is null)
         {
@@ -89,7 +88,7 @@ public class CocktailService
 
     public async Task<List<CocktailDto>> GetFeaturedAsync()
     {
-        var result = await _supabase.From<Models.Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
+        var result = await _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
 
         var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
         
@@ -108,7 +107,7 @@ public class CocktailService
     public async Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id)
     {
         var result = await _supabase
-            .From<Models.Cocktail>()
+            .From<Cocktail>()
             .Select("*, cocktail_id:cocktail_ingredients!inner(*)")
             .Where(n => n.Id == id)
             .Get();
@@ -127,10 +126,10 @@ public class CocktailService
         return cocktail;
     }
 
-    public async Task<OneOf<Success, NotFound>> UpdateOneAsync(int id, Models.Cocktail cocktailModel)
+    public async Task<OneOf<Success, NotFound>> UpdateOneAsync(int id, Cocktail cocktailModel)
     {
         var cocktailToBeUpdated = await _supabase
-            .From<Models.Cocktail>()
+            .From<Cocktail>()
             .Where(n => n.Id == id)
             .Single();
 
@@ -145,7 +144,7 @@ public class CocktailService
         cocktailToBeUpdated.CocktailIngredients = cocktailModel.CocktailIngredients;
         cocktailToBeUpdated.UpdatedAt = cocktailModel.UpdatedAt;
 
-        await cocktailToBeUpdated.Update<Models.Cocktail>();
+        await cocktailToBeUpdated.Update<Cocktail>();
 
         return new Success();
     }
@@ -157,10 +156,20 @@ public class CocktailService
         return result.Match<OneOf<Success, NotFound>>(
             cocktail =>
             {
-                _supabase.From<Models.Cocktail>().Where(c => c.Id == id).Delete();
+                _supabase.From<Cocktail>().Where(c => c.Id == id).Delete();
                 return new Success();
             },
             _ => new NotFound()
         );
     }
+}
+
+public interface ICocktailService
+{
+    Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto, string imageUrl);
+    Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly);
+    Task<List<CocktailDto>> GetFeaturedAsync();
+    Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id);
+    Task<OneOf<Success, NotFound>> UpdateOneAsync(int id, Cocktail cocktailModel);
+    Task<OneOf<Success, NotFound>> DeleteOneAsync(int id);
 }
