@@ -12,10 +12,12 @@ namespace api.Controllers;
     public class RatingsController : ControllerBase
     {
         private readonly IRatingService _ratingService;
+        private readonly ILogger<RatingsController> _logger;
 
-        public RatingsController(IRatingService ratingService)
+        public RatingsController(IRatingService ratingService,  ILogger<RatingsController> logger)
         {
             _ratingService = ratingService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -33,8 +35,19 @@ namespace api.Controllers;
             var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             
             var newRatingResult = await _ratingService.CreateRatingAsync(ratingDto, cocktailId, userId);
-            
-            return CreatedAtAction(nameof(GetAllRatings), new { id = newRatingResult.Id }, newRatingResult);
+
+            return newRatingResult.Match<IActionResult>(
+                r => CreatedAtAction(nameof(GetAllRatings), new { id = r.Id }, r),
+                ue =>
+                {
+                    _logger.LogError($"Unexpected error while creating rating: {ue.Message}");
+                    return StatusCode(500, ue.Message);
+                },
+                af => Conflict(new ProblemDetails
+                {
+                    Detail = "Rating already exists"
+                })
+                );
         }
 
         [HttpDelete("{id:int}")]

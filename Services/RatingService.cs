@@ -1,4 +1,5 @@
 using api.DTOs.RatingDTOs;
+using api.Errors;
 using api.Exceptions;
 using api.Mappers;
 using api.Models;
@@ -19,13 +20,25 @@ public class RatingService : IRatingService
         _logger = logger;
     }
 
-    public async Task<Rating> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId)
+    public async Task<OneOf<Rating, UnexpectedError, AlreadyRated>> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId)
     {
+        var existingRating = await _supabase.From<Rating>().Where(r => r.CocktailId == cocktailId && r.UserId == userId).Get();
+
+        if (existingRating.Model is not null)
+        {
+            return new AlreadyRated();
+        }
+        
         var ratingModel = ratingDto.ToRatingFromDto(cocktailId, userId);
         
-        var ratingResult = await _supabase.From<Rating>().Insert(ratingModel);
-        
-        return ratingResult.Model;
+        var createdRating = await _supabase.From<Rating>().Insert(ratingModel);
+
+        if (createdRating.Model is null)
+        {
+            return new UnexpectedError("Failed to create rating");
+        }
+
+        return createdRating.Model;
     }
 
     public async Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId)
@@ -80,7 +93,7 @@ public class RatingService : IRatingService
 
 public interface IRatingService
 {
-    Task<Rating> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId);
+    Task<OneOf<Rating, UnexpectedError , AlreadyRated>> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId);
 
     Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId);
 
