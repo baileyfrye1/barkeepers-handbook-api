@@ -1,9 +1,8 @@
 using api.DTOs.CocktailDTOs;
 using api.Exceptions;
-using api.Mappers;
 using api.Models;
-using api.Services;
 using api.Services.CocktailServices;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,24 +13,18 @@ namespace api.Controllers
     public class CocktailsController : ControllerBase
     {
         private readonly ICocktailService _cocktailService;
-        private readonly ICocktailIngredientService _cocktailIngredientService;
-        private readonly ICocktailManagementService _cocktailManagementService;
-        private readonly ICocktailImageService _imageService;
         private readonly ILogger<CocktailsController> _logger;
+        private readonly IValidator<CreateCocktailRequestDto> _createValidator;
 
         public CocktailsController(
             ICocktailService cocktailService,
-            ICocktailIngredientService cocktailIngredientService,
-            ICocktailManagementService cocktailManagementService,
-            ICocktailImageService imageService,
-            ILogger<CocktailsController> logger
+            ILogger<CocktailsController> logger,
+            IValidator<CreateCocktailRequestDto> createValidator
         )
         {
             _cocktailService = cocktailService;
-            _cocktailIngredientService = cocktailIngredientService;
-            _cocktailManagementService = cocktailManagementService;
-            _imageService = imageService;
             _logger = logger;
+            _createValidator = createValidator;
         }
 
         [HttpGet]
@@ -62,42 +55,34 @@ namespace api.Controllers
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCocktail(
-            [FromForm] CreateCocktailRequestDto cocktailRequestDto 
-    )
+            [FromForm] CreateCocktailRequestDto cocktailRequestDto
+        )
 
-    {
-            // if (!cocktailRequestDto.CocktailIngredients.Any())
-            // {
-            //     return BadRequest(
-            //         "Error creating cocktail. Please provide cocktail ingredients."
-            //     );
-            // }
+        {
+            var validationResult = _createValidator.Validate(cocktailRequestDto);
 
-            var imageUrl = await _imageService.UploadImage(cocktailRequestDto.Image);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
             
-            var ingredientMap = await _cocktailManagementService.EnsureCocktailIngredientsExistAsync(cocktailRequestDto);
-            
-            var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto, imageUrl);
+            var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
         
             return await newCocktailResult.Match<Task<IActionResult>>(
-                async cocktail =>
+                cocktail =>
                 {
-                    var newCocktailIngredientsList = _cocktailManagementService.MapCocktailIngredients(ingredientMap, cocktail, cocktailRequestDto);
-
-                    await _cocktailIngredientService.AddManyAsync(
-                        newCocktailIngredientsList
-                    );
-                    
-                    return CreatedAtAction(nameof(GetOneCocktailById), new { id = cocktail.Id }, cocktail);
+                    return Task.FromResult<IActionResult>(CreatedAtAction(nameof(GetOneCocktailById), new { id = cocktail.Id }, cocktail));
                 },
-                validate => Task.FromResult<IActionResult>(BadRequest(validate.MapToResponse())),
-                error => Task.FromResult<IActionResult>(StatusCode(500, error.Message))
-            );
+                error =>
+                {
+                    _logger.LogError($"Unexpected error while creating cocktail: {error.Message}");
+                    return Task.FromResult<IActionResult>(StatusCode(500, error.Message));
+                });
         }
 
         // TODO: Look into centralizing validation using FluentValidation
         [Authorize]
-        [HttpPatch("{id:int}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateCocktail(
             [FromRoute] int id,
             [FromBody] UpdateCocktailRequestDto updateCocktailDto
@@ -108,22 +93,12 @@ namespace api.Controllers
             return await cocktailResult.Match<Task<IActionResult>>(
                 async result =>
                 {
-
-                    if (string.IsNullOrWhiteSpace(updateCocktailDto.Name))
-                    {
-                        updateCocktailDto.Name = result.Name;
-                    }
-
-                    if (!updateCocktailDto.Featured.HasValue)
-                    {
-                        updateCocktailDto.Featured = result.Featured;
-                    }
-
-                    if (updateCocktailDto.Tags != null && updateCocktailDto.Tags.Count == 0)
-                    {
-                        updateCocktailDto.Tags = result.Tags;
-                    }
-
+                    updateCocktailDto.Name ??= result.Name;
+                    updateCocktailDto.Featured ??= result.Featured;
+                    updateCocktailDto.Tags = (updateCocktailDto.Tags != null || updateCocktailDto.Tags?.Count == 0
+                        ? result.Tags
+                        : updateCocktailDto.Tags);
+                    
                     var cocktailModel = new Cocktail
                     {
                         Name = updateCocktailDto.Name,

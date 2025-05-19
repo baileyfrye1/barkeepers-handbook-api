@@ -16,38 +16,35 @@ public class CocktailService : ICocktailService
 {
     private readonly Client _supabase;
     private readonly IRatingService _ratingService;
-    private readonly IValidator<CreateCocktailRequestDto> _validator;
     private readonly ILogger<CocktailService> _logger;
+    private readonly ICocktailImageService _imageService;
+    private readonly ICocktailManagementService _cocktailManagementService;
 
-    public CocktailService(Client supabase, IValidator<CreateCocktailRequestDto> validator, IRatingService ratingService, ILogger<CocktailService> logger)
+    public CocktailService(Client supabase, IRatingService ratingService, ILogger<CocktailService> logger, ICocktailImageService imageService, ICocktailManagementService cocktailManagementService)
     {
         _supabase = supabase;
-        _validator = validator;
         _ratingService = ratingService;
         _logger = logger;
+        _imageService = imageService;
+        _cocktailManagementService = cocktailManagementService;
     }
 
-    public async Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto, string imageUrl)
+    public async Task<OneOf<Cocktail, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
     {
-        var validationResult = _validator.Validate(cocktailRequestDto);
-
-        if (!validationResult.IsValid)
-        {
-            return new ValidationFailed(validationResult.Errors);
-        }
-
+        var imageUrl = await _imageService.UploadImage(cocktailRequestDto.Image);
+        
         var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(imageUrl);
-
         var result = await _supabase.From<Cocktail>().Insert(cocktailModel);
+        var createdCocktail = result.Model;
 
-        if (result.Model is null)
+        if (createdCocktail is null)
         {
             return new UnexpectedError("Failed to insert cocktail into database.");
         }
 
-        var newCocktail = result.Model;
+        await _cocktailManagementService.AddCocktailIngredients(cocktailRequestDto, createdCocktail);
 
-        return newCocktail;
+        return createdCocktail;
     }
     
     public async Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly)
@@ -168,7 +165,7 @@ public class CocktailService : ICocktailService
 
 public interface ICocktailService
 {
-    Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto, string imageUrl);
+    Task<OneOf<Cocktail, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto);
     Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly);
     Task<List<CocktailDto>> GetFeaturedAsync();
     Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id);

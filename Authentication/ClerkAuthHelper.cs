@@ -31,8 +31,6 @@ public class ClerkAuthHelper
         
         var requestState = await AuthenticateRequest.AuthenticateRequestAsync(request, options);
         
-        Console.WriteLine(requestState.Token);
-        
         return (requestState.IsSignedIn(), requestState);
  
     }

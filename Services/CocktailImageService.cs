@@ -20,16 +20,10 @@ public class CocktailImageService : ICocktailImageService
 		var newName = $"{Guid.NewGuid()}{extension}";
 		var tempFilePath = Path.Combine(Path.GetTempPath(), newName);
 		
-		Console.WriteLine(newName);
-		
-		Console.WriteLine(tempFilePath);
-
 		await using (var stream = new FileStream(tempFilePath, FileMode.Create))
 		{
 			await file.CopyToAsync(stream);
 		}
-		
-		Console.WriteLine(tempFilePath);
 		
 		await _supabase.Storage.From(BucketName).Upload(tempFilePath, newName, new FileOptions { CacheControl = "3600", Upsert = false, ContentType = file.ContentType});
 		

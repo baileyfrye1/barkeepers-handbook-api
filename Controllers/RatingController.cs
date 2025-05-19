@@ -1,11 +1,12 @@
 using System.Security.Claims;
 using api.DTOs.RatingDTOs;
-using api.Models;
 using api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
+    [Authorize]
     [ApiController]
     [Route("/v1/[controller]")]
     public class RatingsController : ControllerBase
@@ -49,6 +50,14 @@ namespace api.Controllers;
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> UpdateRating([FromRoute] int id, [FromBody] CocktailRatingDto ratingDto)
         {
-            return NoContent();
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _ratingService.UpdateRatingAsync(ratingDto, id, userId);
+
+            return result.Match<IActionResult>(
+                s => Ok(),
+                nf => NotFound()
+                );
+
         }
     }

@@ -8,10 +8,12 @@ namespace api.Services.CocktailServices;
 public class CocktailManagementService : ICocktailManagementService
 {
    private readonly IIngredientService _ingredientService;
+   private readonly ICocktailIngredientService _cocktailIngredientService;
 
-   public CocktailManagementService(IIngredientService ingredientService)
+   public CocktailManagementService(IIngredientService ingredientService, ICocktailIngredientService cocktailIngredientService)
    {
       _ingredientService = ingredientService;
+      _cocktailIngredientService = cocktailIngredientService;
    }
    public async Task<Dictionary<string, Ingredient>> EnsureCocktailIngredientsExistAsync(CreateCocktailRequestDto cocktailRequestDto)
    {
@@ -70,7 +72,7 @@ public class CocktailManagementService : ICocktailManagementService
    
    public List<CocktailIngredient> MapCocktailIngredients(
       Dictionary<string, Ingredient> ingredientMap, 
-      Cocktail cocktail, 
+      Cocktail cocktailModel, 
       CreateCocktailRequestDto cocktailRequestDto
       )
    {
@@ -89,7 +91,7 @@ public class CocktailManagementService : ICocktailManagementService
 
          var newCocktailIngredientModel = new CocktailIngredient
          {
-            CocktailId = cocktail.Id,
+            CocktailId = cocktailModel.Id,
             IngredientId = ingredient.Id,
             Amount = amountValue,
             Unit = unitValue,
@@ -99,6 +101,17 @@ public class CocktailManagementService : ICocktailManagementService
          newCocktailIngredientsList.Add(newCocktailIngredientModel);
       }
       return newCocktailIngredientsList;
+   }
+
+   public async Task AddCocktailIngredients(CreateCocktailRequestDto cocktailRequestDto, Cocktail cocktailModel)
+   {
+      var ingredientMap = await EnsureCocktailIngredientsExistAsync(cocktailRequestDto);
+        
+      var newCocktailIngredientsList = MapCocktailIngredients(ingredientMap, cocktailModel, cocktailRequestDto);
+        
+      await _cocktailIngredientService.AddManyAsync(
+         newCocktailIngredientsList
+      );
    }
 }
 
@@ -110,4 +123,6 @@ public interface ICocktailManagementService
       Cocktail cocktail,
       CreateCocktailRequestDto cocktailRequestDto
    );
+
+   Task AddCocktailIngredients(CreateCocktailRequestDto cocktailRequestDto, Cocktail cocktailModel);
 }
