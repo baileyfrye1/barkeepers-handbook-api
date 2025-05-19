@@ -1,5 +1,6 @@
 using api.DTOs.CocktailDTOs;
 using api.Errors;
+using api.Exceptions;
 using api.Mappers;
 using api.Models;
 using api.Validators;
@@ -16,12 +17,14 @@ public class CocktailService : ICocktailService
     private readonly Client _supabase;
     private readonly IRatingService _ratingService;
     private readonly IValidator<CreateCocktailRequestDto> _validator;
+    private readonly ILogger<CocktailService> _logger;
 
-    public CocktailService(Client supabase, IValidator<CreateCocktailRequestDto> validator, IRatingService ratingService)
+    public CocktailService(Client supabase, IValidator<CreateCocktailRequestDto> validator, IRatingService ratingService, ILogger<CocktailService> logger)
     {
         _supabase = supabase;
         _validator = validator;
         _ratingService = ratingService;
+        _logger = logger;
     }
 
     public async Task<OneOf<Cocktail, ValidationFailed, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto, string imageUrl)
@@ -149,18 +152,17 @@ public class CocktailService : ICocktailService
         return new Success();
     }
 
-    public async Task<OneOf<Success, NotFound>> DeleteOneAsync(int id)
+    public async Task DeleteOneAsync(int id)
     {
-        var result = await GetOneByIdAsync(id);
-
-        return result.Match<OneOf<Success, NotFound>>(
-            cocktail =>
-            {
-                _supabase.From<Cocktail>().Where(c => c.Id == id).Delete();
-                return new Success();
-            },
-            _ => new NotFound()
-        );
+        try
+        {
+            await _supabase.From<Cocktail>().Where(n => n.Id == id).Delete();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error deleting cocktail with ID {id}", id);
+            throw new ServiceLayerException($"Failed to delete cocktail with Id {id}", e);
+        }
     }
 }
 
@@ -171,5 +173,5 @@ public interface ICocktailService
     Task<List<CocktailDto>> GetFeaturedAsync();
     Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id);
     Task<OneOf<Success, NotFound>> UpdateOneAsync(int id, Cocktail cocktailModel);
-    Task<OneOf<Success, NotFound>> DeleteOneAsync(int id);
+    Task DeleteOneAsync(int id);
 }

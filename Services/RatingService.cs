@@ -1,7 +1,9 @@
 using api.DTOs.RatingDTOs;
+using api.Exceptions;
 using api.Mappers;
 using api.Models;
-using Clerk.BackendAPI;
+using OneOf;
+using OneOf.Types;
 using Supabase;
 
 namespace api.Services;
@@ -9,10 +11,12 @@ namespace api.Services;
 public class RatingService : IRatingService
 {
     private readonly Client _supabase;
+    private readonly ILogger<RatingService> _logger;
 
-    public RatingService(Client supabase)
+    public RatingService(Client supabase, ILogger<RatingService> logger)
     {
         _supabase = supabase;
+        _logger = logger;
     }
 
     public async Task<Rating> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId)
@@ -46,7 +50,31 @@ public class RatingService : IRatingService
 
     public async Task DeleteRatingByIdAsync(string userId, int id)
     {
-        await _supabase.From<Rating>().Where(r => r.Id == id && r.UserId == userId).Delete();
+        try
+        {
+            await _supabase.From<Rating>().Where(r => r.Id == id && r.UserId == userId).Delete();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error deleting rating with ID {id}", id);
+            throw new ServiceLayerException($"Failed to delete rating with ID {id}", e);
+        }
+    }
+
+    public async Task<OneOf<Success, NotFound>> UpdateRatingAsync(CocktailRatingDto ratingDto, int id, string userId)
+    {
+       var ratingToBeUpdated = await _supabase.From<Rating>().Where(r => r.Id == id && r.UserId == userId).Single();
+
+       if (ratingToBeUpdated is null)
+       {
+           return new NotFound();
+       }
+
+       ratingToBeUpdated.RatingValue = ratingDto.Rating;
+
+       await ratingToBeUpdated.Update<Rating>();
+       
+       return new Success();
     }
 }
 
@@ -59,4 +87,6 @@ public interface IRatingService
     Task<List<RatingDto>> GetAllRatingsByIdAsync(int cocktailId);
     
     Task DeleteRatingByIdAsync(string userId, int id);
+
+    Task<OneOf<Success, NotFound>> UpdateRatingAsync(CocktailRatingDto ratingDto, int id, string userId);
 }

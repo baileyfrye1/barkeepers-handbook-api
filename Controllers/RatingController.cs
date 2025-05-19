@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using api.DTOs.RatingDTOs;
+using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,18 +20,10 @@ namespace api.Controllers;
         [HttpGet]
         public async Task<IActionResult> GetAllRatings()
         {
-            try
-            {
-                var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                
-                var ratings = await _ratingService.GetAllRatingsByUserAsync(userId);
-                return Ok(ratings);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error in ClerkAuthHelper: " + ex.ToString());
-                throw;
-            }
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            
+            var ratings = await _ratingService.GetAllRatingsByUserAsync(userId);
+            return Ok(ratings);
         }
 
         [HttpPost("{cocktailId:int}")]
@@ -50,6 +43,12 @@ namespace api.Controllers;
 
             await _ratingService.DeleteRatingByIdAsync(userId, id);
 
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<IActionResult> UpdateRating([FromRoute] int id, [FromBody] CocktailRatingDto ratingDto)
+        {
             return NoContent();
         }
     }

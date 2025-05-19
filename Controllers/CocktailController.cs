@@ -1,4 +1,5 @@
 using api.DTOs.CocktailDTOs;
+using api.Exceptions;
 using api.Mappers;
 using api.Models;
 using api.Services;
@@ -16,18 +17,21 @@ namespace api.Controllers
         private readonly ICocktailIngredientService _cocktailIngredientService;
         private readonly ICocktailManagementService _cocktailManagementService;
         private readonly ICocktailImageService _imageService;
+        private readonly ILogger<CocktailsController> _logger;
 
         public CocktailsController(
             ICocktailService cocktailService,
             ICocktailIngredientService cocktailIngredientService,
             ICocktailManagementService cocktailManagementService,
-            ICocktailImageService imageService
+            ICocktailImageService imageService,
+            ILogger<CocktailsController> logger
         )
         {
             _cocktailService = cocktailService;
             _cocktailIngredientService = cocktailIngredientService;
             _cocktailManagementService = cocktailManagementService;
             _imageService = imageService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -145,12 +149,16 @@ namespace api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCocktail([FromRoute] int id)
         {
-            var result = await _cocktailService.DeleteOneAsync(id);
-
-            return result.Match<IActionResult>(
-                c => NoContent(),
-                _ => NotFound()
-            );
+            try
+            {
+                await _cocktailService.DeleteOneAsync(id);
+                return NoContent();
+            }
+            catch (ServiceLayerException e)
+            {
+                _logger.LogError(e, "Delete failed");
+                return StatusCode(500, "An error occured while deleting the cocktail");
+            }
         }
     }
 }
