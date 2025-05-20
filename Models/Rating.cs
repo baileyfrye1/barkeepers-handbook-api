@@ -12,7 +12,7 @@ namespace api.Models
 		public int Id { get; set; }
 
 		[Reference(typeof(Cocktail))]
-		public RatedCocktailDto Cocktail { get; set; } = new RatedCocktailDto() { };
+		public ReferenceCocktailDto Cocktail { get; set; } = new ReferenceCocktailDto() { };
 
 		[Column("cocktail_id")]
 		public int CocktailId { get; set; }

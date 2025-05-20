@@ -66,7 +66,7 @@ namespace api.Controllers
                 return BadRequest(validationResult.Errors);
             }
             
-            var newCocktailResult = await _cocktailService.AddOneAsync(cocktailRequestDto);
+            var newCocktailResult = await _cocktailService.CreateCocktailAsync(cocktailRequestDto);
         
             return await newCocktailResult.Match<Task<IActionResult>>(
                 cocktail =>

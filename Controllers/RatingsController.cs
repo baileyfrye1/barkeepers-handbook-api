@@ -25,7 +25,7 @@ namespace api.Controllers;
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             
-            var ratings = await _ratingService.GetAllRatingsByUserAsync(userId);
+            var ratings = await _ratingService.GetRatingsByUserAsync(userId);
             return Ok(ratings);
         }
 
@@ -49,6 +49,18 @@ namespace api.Controllers;
                 })
                 );
         }
+        
+        [HttpPatch("{id:int}")] public async Task<IActionResult> UpdateRating([FromRoute] int id, [FromBody] CocktailRatingDto ratingDto)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _ratingService.UpdateRatingAsync(ratingDto, id, userId);
+
+            return result.Match<IActionResult>(
+                s => Ok(),
+                nf => NotFound()
+            );
+        }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteRating([FromRoute] int id)
@@ -58,19 +70,5 @@ namespace api.Controllers;
             await _ratingService.DeleteRatingByIdAsync(userId, id);
 
             return NoContent();
-        }
-
-        [HttpPatch("{id:int}")]
-        public async Task<IActionResult> UpdateRating([FromRoute] int id, [FromBody] CocktailRatingDto ratingDto)
-        {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            var result = await _ratingService.UpdateRatingAsync(ratingDto, id, userId);
-
-            return result.Match<IActionResult>(
-                s => Ok(),
-                nf => NotFound()
-                );
-
         }
     }

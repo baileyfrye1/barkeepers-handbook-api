@@ -22,9 +22,9 @@ namespace api.Mappers
 			};
 		}
 
-		public static RatedCocktailDto ToCocktailReviewDto(this Cocktail cocktailModel)
+		public static ReferenceCocktailDto ToCocktailReviewDto(this Cocktail cocktailModel)
 		{
-			return new RatedCocktailDto
+			return new ReferenceCocktailDto
 			{
 				Id = cocktailModel.Id,
 				Name = cocktailModel.Name

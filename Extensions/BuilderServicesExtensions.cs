@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using api.DTOs.CocktailDTOs;
 using api.DTOs.IngredientDTOs;
+using api.Models;
 using api.Services;
 using api.Services.CocktailServices;
 using api.Validators;
@@ -28,6 +29,7 @@ namespace api.Extensions
             services.AddScoped<IValidator<IngredientDto>, CreateIngredientValidator>();
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<ICocktailImageService, CocktailImageService>();
+            services.AddScoped<IFavoriteService, FavoriteService>();
             return services;
         }
     }

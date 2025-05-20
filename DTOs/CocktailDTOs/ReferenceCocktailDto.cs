@@ -1,6 +1,6 @@
 namespace api.DTOs.CocktailDTOs;
 
-public class RatedCocktailDto
+public class ReferenceCocktailDto
 {
     public int Id { get; set; }
 

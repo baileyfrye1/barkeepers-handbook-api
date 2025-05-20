@@ -41,7 +41,7 @@ public class RatingService : IRatingService
         return createdRating.Model;
     }
 
-    public async Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId)
+    public async Task<List<RatingDto>> GetRatingsByUserAsync(string userId)
     {
         var query = _supabase.From<Rating>();
 
@@ -52,7 +52,7 @@ public class RatingService : IRatingService
         return ratings;
     }
 
-    public async Task<List<RatingDto>> GetAllRatingsByIdAsync(int cocktailId)
+    public async Task<List<RatingDto>> GetAllRatingsByCocktailIdAsync(int cocktailId)
     {
         var query = await _supabase.From<Rating>().Where(r => r.CocktailId == cocktailId).Get();
 
@@ -93,13 +93,13 @@ public class RatingService : IRatingService
 
 public interface IRatingService
 {
-    Task<OneOf<Rating, UnexpectedError , AlreadyRated>> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId);
+    Task<List<RatingDto>> GetRatingsByUserAsync(string userId);
 
-    Task<List<RatingDto>> GetAllRatingsByUserAsync(string userId);
-
-    Task<List<RatingDto>> GetAllRatingsByIdAsync(int cocktailId);
+    Task<List<RatingDto>> GetAllRatingsByCocktailIdAsync(int cocktailId);
     
-    Task DeleteRatingByIdAsync(string userId, int id);
+    Task<OneOf<Rating, UnexpectedError, AlreadyRated>> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId);
 
     Task<OneOf<Success, NotFound>> UpdateRatingAsync(CocktailRatingDto ratingDto, int id, string userId);
+    
+    Task DeleteRatingByIdAsync(string userId, int id);
 }

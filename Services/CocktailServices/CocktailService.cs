@@ -29,7 +29,7 @@ public class CocktailService : ICocktailService
         _cocktailManagementService = cocktailManagementService;
     }
 
-    public async Task<OneOf<Cocktail, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto)
+    public async Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto)
     {
         var imageUrl = await _imageService.UploadImage(cocktailRequestDto.Image);
         
@@ -76,7 +76,7 @@ public class CocktailService : ICocktailService
         
         var cocktailsWithRatings = cocktails.Select(async c =>
         {
-            var fetchedRatings = await _ratingService.GetAllRatingsByIdAsync(c.Id);
+            var fetchedRatings = await _ratingService.GetAllRatingsByCocktailIdAsync(c.Id);
             c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
             return c;
         }).ToList();
@@ -94,7 +94,7 @@ public class CocktailService : ICocktailService
         
         var cocktailsWithRatings = cocktails.Select(async c =>
         {
-            var fetchedRatings = await _ratingService.GetAllRatingsByIdAsync(c.Id);
+            var fetchedRatings = await _ratingService.GetAllRatingsByCocktailIdAsync(c.Id);
             c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
             return c;
         }).ToList();
@@ -119,7 +119,7 @@ public class CocktailService : ICocktailService
 
         var cocktail = result.Model.ToCocktailDto();
         
-        var fetchedRating = await _ratingService.GetAllRatingsByIdAsync(id);
+        var fetchedRating = await _ratingService.GetAllRatingsByCocktailIdAsync(id);
 
         cocktail.RatingsData.Ratings = fetchedRating.Select(r => r.ToCocktailRatingDto()).ToList();
 
@@ -165,7 +165,7 @@ public class CocktailService : ICocktailService
 
 public interface ICocktailService
 {
-    Task<OneOf<Cocktail, UnexpectedError>> AddOneAsync(CreateCocktailRequestDto cocktailRequestDto);
+    Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto);
     Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly);
     Task<List<CocktailDto>> GetFeaturedAsync();
     Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id);
