@@ -16,6 +16,9 @@ namespace api.Models
 
         [Column("featured")]
         public bool Featured { get; set; }
+        
+        [Column("user_id")]
+        public string UserId { get; set; }
 
         [Column("tags")]
         public List<string> Tags { get; set; } = [];

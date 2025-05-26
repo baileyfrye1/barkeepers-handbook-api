@@ -23,7 +23,7 @@ public class IngredientService : IIngredientService
 
 	public async Task<OneOf<Ingredient, ValidationFailed, UnexpectedError>> AddOneAsync(Ingredient ingredient)
 	{
-		var validationResult = _validator.Validate(ingredient.ToIngredientDto());
+		var validationResult = await _validator.ValidateAsync(ingredient.ToIngredientDto());
 
 		if (!validationResult.IsValid)
 		{

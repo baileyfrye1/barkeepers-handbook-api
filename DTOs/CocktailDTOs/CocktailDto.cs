@@ -13,6 +13,8 @@ public class CocktailDto
 
     public List<string> Tags { get; set; } = [];
 
+    public string UserId { get; set; } = string.Empty;
+
     public List<CocktailIngredientDto> CocktailIngredients { get; set; } = [];
     
     public string ImageUrl { get; set; } = string.Empty;

@@ -31,14 +31,15 @@ namespace api.Mappers
 			};
 		}
 
-		public static Cocktail ToCocktailFromCreateDto(this CreateCocktailRequestDto cocktailRequestDto, string imageUrl)
+		public static Cocktail ToCocktailFromCreateDto(this CreateCocktailRequestDto cocktailRequestDto, string imageUrl, string userId, List<string> allTags)
 		{
 			return new Cocktail
 			{
 				Name = cocktailRequestDto.Name,
 				Featured = cocktailRequestDto.Featured,
-				Tags = cocktailRequestDto.Tags,
+				Tags = allTags,
 				ImageUrl = imageUrl,
+				UserId = userId,
 				CreatedAt = DateTime.Now,
 				UpdatedAt = DateTime.Now,
 			};

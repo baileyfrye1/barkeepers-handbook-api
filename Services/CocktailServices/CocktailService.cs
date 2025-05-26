@@ -3,8 +3,6 @@ using api.Errors;
 using api.Exceptions;
 using api.Mappers;
 using api.Models;
-using api.Validators;
-using FluentValidation;
 using OneOf;
 using OneOf.Types;
 using Supabase.Postgrest;
@@ -29,11 +27,17 @@ public class CocktailService : ICocktailService
         _cocktailManagementService = cocktailManagementService;
     }
 
-    public async Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto)
+    public async Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto, string userId)
     {
         var imageUrl = await _imageService.UploadImage(cocktailRequestDto.Image);
-        
-        var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(imageUrl);
+        var allTags = new List<string> (cocktailRequestDto.Tags);
+
+        foreach (var cocktailIngredient in cocktailRequestDto.CocktailIngredients)
+        {
+           allTags.Add(cocktailIngredient.Ingredient.Name.ToLower()); 
+        }
+
+        var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(imageUrl, userId, allTags);
         var result = await _supabase.From<Cocktail>().Insert(cocktailModel);
         var createdCocktail = result.Model;
 
@@ -165,7 +169,7 @@ public class CocktailService : ICocktailService
 
 public interface ICocktailService
 {
-    Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto);
+    Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto, string userId);
     Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly);
     Task<List<CocktailDto>> GetFeaturedAsync();
     Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id);

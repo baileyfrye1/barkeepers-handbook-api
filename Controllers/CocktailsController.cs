@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using api.DTOs.CocktailDTOs;
 using api.Exceptions;
 using api.Models;
@@ -57,8 +58,9 @@ namespace api.Controllers
         public async Task<IActionResult> AddCocktail(
             [FromForm] CreateCocktailRequestDto cocktailRequestDto
         )
-
         {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            
             var validationResult = _createValidator.Validate(cocktailRequestDto);
 
             if (!validationResult.IsValid)
@@ -66,7 +68,7 @@ namespace api.Controllers
                 return BadRequest(validationResult.Errors);
             }
             
-            var newCocktailResult = await _cocktailService.CreateCocktailAsync(cocktailRequestDto);
+            var newCocktailResult = await _cocktailService.CreateCocktailAsync(cocktailRequestDto, userId);
         
             return await newCocktailResult.Match<Task<IActionResult>>(
                 cocktail =>
