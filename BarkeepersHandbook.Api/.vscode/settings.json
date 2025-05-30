@@ -1,4 +1,0 @@
-{
-  "appService.defaultWebAppToDeploy": "/subscriptions/2d184e53-a8ee-4564-b15e-767667b02481/resourceGroups/appsvc_windows_eastus2/providers/Microsoft.Web/sites/barkeepers-handbook",
-  "appService.deploySubpath": "publish"
-}

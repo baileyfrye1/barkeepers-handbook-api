@@ -487,3 +487,5 @@ $RECYCLE.BIN/
 TODO.md
 bin
 obj
+.idea
+.vscode
