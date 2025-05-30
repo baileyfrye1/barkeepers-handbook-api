@@ -1,0 +1,10 @@
+namespace BarkeepersHandbook.Api.DTOs.CocktailDTOs;
+
+public class ReferenceCocktailDto
+{
+    public int Id { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public string Image { get; set; } = string.Empty;
+}
