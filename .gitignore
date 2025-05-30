@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 
 # Extra files
 TODO.md
+bin
+obj
