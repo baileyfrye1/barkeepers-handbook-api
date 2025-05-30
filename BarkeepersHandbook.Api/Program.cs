@@ -1,4 +1,3 @@
-using BarkeepersHandbook.Api.Authentication;
 using BarkeepersHandbook.Api.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -88,9 +87,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddOpenApi();
-
-var clerkSecretKey = builder.Configuration["Clerk:SecretKey"];
-builder.Services.AddSingleton(new ClerkAuthSettings(clerkSecretKey));
 
 // Add Dependency Injection
 builder.Services.AddDependencies();

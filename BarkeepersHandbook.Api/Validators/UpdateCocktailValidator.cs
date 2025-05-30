@@ -1,4 +1,4 @@
-using BarkeepersHandbook.Api.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
 using FluentValidation;
 
 namespace BarkeepersHandbook.Api.Validators

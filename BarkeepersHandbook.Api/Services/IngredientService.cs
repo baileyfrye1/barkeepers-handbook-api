@@ -1,8 +1,8 @@
 using BarkeepersHandbook.Api.Mappers;
-using BarkeepersHandbook.Api.DTOs.IngredientDTOs;
 using BarkeepersHandbook.Api.Errors;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.Models;
 using BarkeepersHandbook.Api.Validators;
+using BarkeepersHandbook.Application.DTOs.IngredientDTOs;
 using FluentValidation;
 using OneOf;
 using OneOf.Types;

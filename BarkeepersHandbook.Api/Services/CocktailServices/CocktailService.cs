@@ -1,8 +1,8 @@
 using BarkeepersHandbook.Api.Mappers;
-using BarkeepersHandbook.Api.DTOs.CocktailDTOs;
 using BarkeepersHandbook.Api.Errors;
 using BarkeepersHandbook.Api.Exceptions;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Application.Models;
 using OneOf;
 using OneOf.Types;
 using Supabase.Postgrest;
@@ -90,6 +90,7 @@ public class CocktailService : ICocktailService
         return (Cocktails: awaitedCocktails, TotalCount: count);
     }
 
+    // TODO: Optimize query to only run one ratings db call instead of fetching ratings for each featured cocktail
     public async Task<List<CocktailDto>> GetFeaturedAsync()
     {
         var result = await _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
@@ -105,7 +106,7 @@ public class CocktailService : ICocktailService
 
         var awaitedCocktails = (await Task.WhenAll(cocktailsWithRatings)).ToList();
 
-        return awaitedCocktails;
+        return cocktails;
     }
 
     public async Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id)

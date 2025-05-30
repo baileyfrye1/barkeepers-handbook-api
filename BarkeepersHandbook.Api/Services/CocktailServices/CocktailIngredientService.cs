@@ -1,6 +1,6 @@
 using BarkeepersHandbook.Api.Mappers;
-using BarkeepersHandbook.Api.DTOs.CocktailIngredientDTOs;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.DTOs.CocktailIngredientDTOs;
+using BarkeepersHandbook.Application.Models;
 using Supabase;
 
 namespace BarkeepersHandbook.Api.Services.CocktailServices;

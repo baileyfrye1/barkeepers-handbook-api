@@ -1,8 +1,8 @@
 using BarkeepersHandbook.Api.Mappers;
-using BarkeepersHandbook.Api.DTOs.RatingDTOs;
 using BarkeepersHandbook.Api.Errors;
 using BarkeepersHandbook.Api.Exceptions;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.DTOs.RatingDTOs;
+using BarkeepersHandbook.Application.Models;
 using OneOf;
 using OneOf.Types;
 using Supabase;

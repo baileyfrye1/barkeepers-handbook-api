@@ -1,5 +1,5 @@
-using BarkeepersHandbook.Api.DTOs.RatingDTOs;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.DTOs.RatingDTOs;
+using BarkeepersHandbook.Application.Models;
 
 namespace BarkeepersHandbook.Api.Mappers;
 

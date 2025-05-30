@@ -1,5 +1,5 @@
-using BarkeepersHandbook.Api.DTOs.IngredientDTOs;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.DTOs.IngredientDTOs;
+using BarkeepersHandbook.Application.Models;
 
 namespace BarkeepersHandbook.Api.Mappers
 {

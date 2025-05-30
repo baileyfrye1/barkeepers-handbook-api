@@ -1,7 +1,7 @@
-using BarkeepersHandbook.Api.DTOs.CocktailDTOs;
 using BarkeepersHandbook.Api.Errors;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.Models;
 using BarkeepersHandbook.Api.Validators;
+using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
 
 namespace BarkeepersHandbook.Api.Services.CocktailServices;
 

@@ -1,5 +1,3 @@
-using Supabase.Storage;
-using Supabase.Storage.Interfaces;
 using Client = Supabase.Client;
 using FileOptions = Supabase.Storage.FileOptions;
 
@@ -32,7 +30,7 @@ public class CocktailImageService : ICocktailImageService
 		return _supabase.Storage.From(BucketName).GetPublicUrl(newName);
 	}
 
-	public async void DeleteImage(string imageName)
+	public async Task DeleteImage(string imageName)
 	{
 		await _supabase.Storage.From(BucketName).Remove(imageName);
 	}
@@ -41,5 +39,5 @@ public class CocktailImageService : ICocktailImageService
 public interface ICocktailImageService
 {
 	Task<string> UploadImage(IFormFile file);
-	void DeleteImage(string imageName);
+	Task DeleteImage(string imageName);
 }

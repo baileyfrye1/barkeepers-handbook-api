@@ -1,7 +1,5 @@
-using BarkeepersHandbook.Api.DTOs;
-using BarkeepersHandbook.Api.DTOs.RatingDTOs;
-using BarkeepersHandbook.Api.DTOs.CocktailDTOs;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Application.Models;
 
 namespace BarkeepersHandbook.Api.Mappers
 {

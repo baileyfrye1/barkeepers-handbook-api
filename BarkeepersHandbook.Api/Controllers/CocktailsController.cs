@@ -1,8 +1,8 @@
 using System.Security.Claims;
-using BarkeepersHandbook.Api.DTOs.CocktailDTOs;
 using BarkeepersHandbook.Api.Exceptions;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.Models;
 using BarkeepersHandbook.Api.Services.CocktailServices;
+using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

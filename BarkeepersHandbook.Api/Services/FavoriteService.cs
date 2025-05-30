@@ -1,6 +1,6 @@
-using BarkeepersHandbook.Api.DTOs.FavoriteDTOs;
 using BarkeepersHandbook.Api.Errors;
-using BarkeepersHandbook.Api.Models;
+using BarkeepersHandbook.Application.DTOs.FavoriteDTOs;
+using BarkeepersHandbook.Application.Models;
 using OneOf;
 
 namespace BarkeepersHandbook.Api.Services;
