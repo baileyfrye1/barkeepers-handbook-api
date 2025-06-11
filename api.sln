@@ -1,0 +1,31 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Tests", "BarkeepersHandbook.Tests\BarkeepersHandbook.Tests.csproj", "{F484C0AC-FF8A-4ABD-A554-DA9DA55E306E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Api", "BarkeepersHandbook.Api\BarkeepersHandbook.Api.csproj", "{89203BFF-9637-463E-8FEE-F1F12626CD34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Application", "BarkeepersHandbook.Application\BarkeepersHandbook.Application.csproj", "{C092A24C-CCD8-49DD-99BB-43C72D06440D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89203BFF-9637-463E-8FEE-F1F12626CD34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89203BFF-9637-463E-8FEE-F1F12626CD34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89203BFF-9637-463E-8FEE-F1F12626CD34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89203BFF-9637-463E-8FEE-F1F12626CD34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C092A24C-CCD8-49DD-99BB-43C72D06440D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C092A24C-CCD8-49DD-99BB-43C72D06440D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C092A24C-CCD8-49DD-99BB-43C72D06440D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C092A24C-CCD8-49DD-99BB-43C72D06440D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F484C0AC-FF8A-4ABD-A554-DA9DA55E306E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F484C0AC-FF8A-4ABD-A554-DA9DA55E306E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -43,28 +43,6 @@ builder
             ValidateLifetime = true,
             ValidateAudience = false,
         };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-                {
-                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
-                }
-                else if (context.Request.Cookies.ContainsKey("__session"))
-                {
-                    context.Token = context.Request.Cookies["__session"];
-                }
-                return Task.CompletedTask;
-            },
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine("Token failed: " + context.Exception.Message);
-                return Task.CompletedTask;
-            }
-        };
     });
 
 builder.Services.AddControllers();

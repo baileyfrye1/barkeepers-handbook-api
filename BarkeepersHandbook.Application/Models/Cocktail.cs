@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -14,7 +16,7 @@ namespace BarkeepersHandbook.Application.Models
 
         [Column("featured")]
         public bool Featured { get; set; }
-        
+
         [Column("user_id")]
         public string UserId { get; set; }
 
@@ -35,8 +37,8 @@ namespace BarkeepersHandbook.Application.Models
 
         [Reference(typeof(CocktailIngredient))]
         public List<CocktailIngredient> CocktailIngredients { get; set; } = [];
-        
-        [Reference(typeof(Rating),  useInnerJoin: false)]
+
+        [Reference(typeof(Rating), useInnerJoin: false)]
         public List<Rating> Ratings { get; set; }
     }
 }

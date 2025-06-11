@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using BarkeepersHandbook.Api.Exceptions;
-using BarkeepersHandbook.Application.Models;
 using BarkeepersHandbook.Api.Services.CocktailServices;
 using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Application.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +29,11 @@ namespace BarkeepersHandbook.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCocktails([FromQuery] string? search, int page, bool countOnly = false)
+        public async Task<IActionResult> GetAllCocktails(
+            [FromQuery] string? search,
+            int page,
+            bool countOnly = false
+        )
         {
             var cocktailsDto = await _cocktailService.GetAllAsync(search, page, countOnly);
             return Ok(new { cocktailsDto.Cocktails, cocktailsDto.TotalCount });
@@ -47,10 +51,7 @@ namespace BarkeepersHandbook.Api.Controllers
         {
             var result = await _cocktailService.GetOneByIdAsync(id);
 
-            return result.Match<IActionResult>(
-                c => Ok(c),
-                _ => NotFound()
-            );
+            return result.Match<IActionResult>(c => Ok(c), _ => NotFound());
         }
 
         [Authorize]
@@ -59,27 +60,39 @@ namespace BarkeepersHandbook.Api.Controllers
             [FromForm] CreateCocktailRequestDto cocktailRequestDto
         )
         {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            
+            var userId = User
+                .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                ?.Value;
+
             var validationResult = _createValidator.Validate(cocktailRequestDto);
 
             if (!validationResult.IsValid)
             {
                 return BadRequest(validationResult.Errors);
             }
-            
-            var newCocktailResult = await _cocktailService.CreateCocktailAsync(cocktailRequestDto, userId);
-        
+
+            var newCocktailResult = await _cocktailService.CreateCocktailAsync(
+                cocktailRequestDto,
+                userId
+            );
+
             return await newCocktailResult.Match<Task<IActionResult>>(
                 cocktail =>
                 {
-                    return Task.FromResult<IActionResult>(CreatedAtAction(nameof(GetOneCocktailById), new { id = cocktail.Id }, cocktail));
+                    return Task.FromResult<IActionResult>(
+                        CreatedAtAction(
+                            nameof(GetOneCocktailById),
+                            new { id = cocktail.Id },
+                            cocktail
+                        )
+                    );
                 },
                 error =>
                 {
                     _logger.LogError($"Unexpected error while creating cocktail: {error.Message}");
                     return Task.FromResult<IActionResult>(StatusCode(500, error.Message));
-                });
+                }
+            );
         }
 
         // TODO: Look into centralizing validation using FluentValidation
@@ -97,10 +110,12 @@ namespace BarkeepersHandbook.Api.Controllers
                 {
                     updateCocktailDto.Name ??= result.Name;
                     updateCocktailDto.Featured ??= result.Featured;
-                    updateCocktailDto.Tags = (updateCocktailDto.Tags != null || updateCocktailDto.Tags?.Count == 0
-                        ? result.Tags
-                        : updateCocktailDto.Tags);
-                    
+                    updateCocktailDto.Tags = (
+                        updateCocktailDto.Tags != null || updateCocktailDto.Tags?.Count == 0
+                            ? result.Tags
+                            : updateCocktailDto.Tags
+                    );
+
                     var cocktailModel = new Cocktail
                     {
                         Name = updateCocktailDto.Name,

@@ -1,6 +1,6 @@
-using BarkeepersHandbook.Api.Mappers;
 using BarkeepersHandbook.Api.Errors;
 using BarkeepersHandbook.Api.Exceptions;
+using BarkeepersHandbook.Api.Mappers;
 using BarkeepersHandbook.Application.DTOs.RatingDTOs;
 using BarkeepersHandbook.Application.Models;
 using OneOf;
@@ -20,17 +20,26 @@ public class RatingService : IRatingService
         _logger = logger;
     }
 
-    public async Task<OneOf<Rating, UnexpectedError, AlreadyRated>> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId)
+    public async Task<OneOf<Rating, UnexpectedError, AlreadyRated>> CreateRatingAsync(
+        CocktailRatingDto ratingDto,
+        int cocktailId,
+        string userId
+    )
     {
-        var existingRating = await _supabase.From<Rating>().Where(r => r.CocktailId == cocktailId && r.UserId == userId).Get();
+        var existingRating = await _supabase
+            .From<Rating>()
+            .Where(r => r.CocktailId == cocktailId && r.UserId == userId)
+            .Get();
 
         if (existingRating.Model is not null)
         {
             return new AlreadyRated();
         }
-        
+
+        var testModel = ratingDto.ToRatingFromDto(cocktailId, userId);
+
         var ratingModel = ratingDto.ToRatingFromDto(cocktailId, userId);
-        
+
         var createdRating = await _supabase.From<Rating>().Insert(ratingModel);
 
         if (createdRating.Model is null)
@@ -48,7 +57,7 @@ public class RatingService : IRatingService
         var result = await query.Where(r => r.UserId == userId).Get();
 
         var ratings = result.Models.Select(r => r.ToRatingDto()).ToList();
-        
+
         return ratings;
     }
 
@@ -56,9 +65,7 @@ public class RatingService : IRatingService
     {
         var query = await _supabase.From<Rating>().Where(r => r.CocktailId == cocktailId).Get();
 
-        return query.Models.Count == 0 
-            ? []
-            : query.Models.Select(r => r.ToRatingDto()).ToList();
+        return query.Models.Count == 0 ? [] : query.Models.Select(r => r.ToRatingDto()).ToList();
     }
 
     public async Task DeleteRatingByIdAsync(string userId, int id)
@@ -74,20 +81,27 @@ public class RatingService : IRatingService
         }
     }
 
-    public async Task<OneOf<Success, NotFound>> UpdateRatingAsync(CocktailRatingDto ratingDto, int id, string userId)
+    public async Task<OneOf<Success, NotFound>> UpdateRatingAsync(
+        CocktailRatingDto ratingDto,
+        int id,
+        string userId
+    )
     {
-       var ratingToBeUpdated = await _supabase.From<Rating>().Where(r => r.Id == id && r.UserId == userId).Single();
+        var ratingToBeUpdated = await _supabase
+            .From<Rating>()
+            .Where(r => r.Id == id && r.UserId == userId)
+            .Single();
 
-       if (ratingToBeUpdated is null)
-       {
-           return new NotFound();
-       }
+        if (ratingToBeUpdated is null)
+        {
+            return new NotFound();
+        }
 
-       ratingToBeUpdated.RatingValue = ratingDto.Rating;
+        ratingToBeUpdated.RatingValue = ratingDto.Rating;
 
-       await ratingToBeUpdated.Update<Rating>();
-       
-       return new Success();
+        await ratingToBeUpdated.Update<Rating>();
+
+        return new Success();
     }
 }
 
@@ -96,10 +110,18 @@ public interface IRatingService
     Task<List<RatingDto>> GetRatingsByUserAsync(string userId);
 
     Task<List<RatingDto>> GetAllRatingsByCocktailIdAsync(int cocktailId);
-    
-    Task<OneOf<Rating, UnexpectedError, AlreadyRated>> CreateRatingAsync(CocktailRatingDto ratingDto, int cocktailId, string userId);
 
-    Task<OneOf<Success, NotFound>> UpdateRatingAsync(CocktailRatingDto ratingDto, int id, string userId);
-    
+    Task<OneOf<Rating, UnexpectedError, AlreadyRated>> CreateRatingAsync(
+        CocktailRatingDto ratingDto,
+        int cocktailId,
+        string userId
+    );
+
+    Task<OneOf<Success, NotFound>> UpdateRatingAsync(
+        CocktailRatingDto ratingDto,
+        int id,
+        string userId
+    );
+
     Task DeleteRatingByIdAsync(string userId, int id);
 }

@@ -16,9 +16,9 @@ public class CocktailDto
     public string UserId { get; init; } = string.Empty;
 
     public List<CocktailIngredientDto> CocktailIngredients { get; init; } = [];
-    
+
     public string ImageUrl { get; init; } = string.Empty;
-    
+
     public CocktailRatingObjectDto RatingsData { get; init; } = new();
 
     public DateTime CreatedAt { get; init; }
