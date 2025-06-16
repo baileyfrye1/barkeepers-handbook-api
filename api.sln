@@ -2,7 +2,7 @@
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Tests", "BarkeepersHandbook.Tests\BarkeepersHandbook.Tests.csproj", "{F484C0AC-FF8A-4ABD-A554-DA9DA55E306E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Tests.Unit", "BarkeepersHandbook.Tests.Unit\BarkeepersHandbook.Tests.Unit.csproj", "{F484C0AC-FF8A-4ABD-A554-DA9DA55E306E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Api", "BarkeepersHandbook.Api\BarkeepersHandbook.Api.csproj", "{89203BFF-9637-463E-8FEE-F1F12626CD34}"
 EndProject
