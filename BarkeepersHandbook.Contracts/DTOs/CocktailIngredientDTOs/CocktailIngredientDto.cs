@@ -1,6 +1,6 @@
-using BarkeepersHandbook.Application.DTOs.IngredientDTOs;
+using BarkeepersHandbook.Contracts.DTOs.IngredientDTOs;
 
-namespace BarkeepersHandbook.Application.DTOs.CocktailIngredientDTOs;
+namespace BarkeepersHandbook.Contracts.DTOs.CocktailIngredientDTOs;
 
 public class CocktailIngredientDto
 {

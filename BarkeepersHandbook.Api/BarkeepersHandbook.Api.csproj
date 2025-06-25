@@ -28,6 +28,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BarkeepersHandbook.Application\BarkeepersHandbook.Application.csproj" />
+    <ProjectReference Include="..\BarkeepersHandbook.Contracts\BarkeepersHandbook.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="publish\publish\web.config" />
+    <_ContentIncludedByDefault Remove="publish\web.config" />
+    <_ContentIncludedByDefault Remove="publish\api.deps.json" />
+    <_ContentIncludedByDefault Remove="publish\api.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="publish\api.staticwebassets.endpoints.json" />
+    <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+    <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\api.deps.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\api.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\api.staticwebassets.endpoints.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\appsettings.json" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
 using BarkeepersHandbook.Application.Models;
+using BarkeepersHandbook.Contracts.DTOs.CocktailDTOs;
 
 namespace BarkeepersHandbook.Api.Mappers
 {

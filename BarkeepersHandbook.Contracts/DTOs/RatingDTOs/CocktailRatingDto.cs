@@ -1,4 +1,4 @@
-namespace BarkeepersHandbook.Application.DTOs.RatingDTOs;
+namespace BarkeepersHandbook.Contracts.DTOs.RatingDTOs;
 
 public class CocktailRatingDto
 {

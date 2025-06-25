@@ -70,6 +70,7 @@
   - [ ] User will have choice to view their variant first instead of the original recipe
 - [ ] Add cocktail creator functionality to allow authenticated users to create their own recipes
   - [ ] Can be made public or private for others to view
+- [ ] Add redis output cache to reduce DB calls
 
 <!-- Contact -->
 

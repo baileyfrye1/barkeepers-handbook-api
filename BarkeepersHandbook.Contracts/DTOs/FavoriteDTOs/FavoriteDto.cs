@@ -1,6 +1,6 @@
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Contracts.DTOs.CocktailDTOs;
 
-namespace BarkeepersHandbook.Application.DTOs.FavoriteDTOs;
+namespace BarkeepersHandbook.Contracts.DTOs.FavoriteDTOs;
 
 public class FavoriteDto
 {

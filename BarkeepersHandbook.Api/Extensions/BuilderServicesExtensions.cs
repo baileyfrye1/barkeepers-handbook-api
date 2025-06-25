@@ -1,8 +1,8 @@
 using BarkeepersHandbook.Api.Services;
 using BarkeepersHandbook.Api.Services.CocktailServices;
 using BarkeepersHandbook.Api.Validators;
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
-using BarkeepersHandbook.Application.DTOs.IngredientDTOs;
+using BarkeepersHandbook.Application.Services.CocktailServices;
+using BarkeepersHandbook.Contracts.DTOs.IngredientDTOs;
 using FluentValidation;
 
 namespace BarkeepersHandbook.Api.Extensions

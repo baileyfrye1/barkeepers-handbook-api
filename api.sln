@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Api", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Application", "BarkeepersHandbook.Application\BarkeepersHandbook.Application.csproj", "{C092A24C-CCD8-49DD-99BB-43C72D06440D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Tests.Integration", "BarkeepersHandbook.Tests.Integration\BarkeepersHandbook.Tests.Integration.csproj", "{6B906FCB-1774-439B-9A3C-9E946542A1DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarkeepersHandbook.Contracts", "BarkeepersHandbook.Contracts\BarkeepersHandbook.Contracts.csproj", "{59982367-ADCC-4490-A34E-55C6B3893A89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,5 +31,13 @@ Global
 		{C092A24C-CCD8-49DD-99BB-43C72D06440D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F484C0AC-FF8A-4ABD-A554-DA9DA55E306E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F484C0AC-FF8A-4ABD-A554-DA9DA55E306E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B906FCB-1774-439B-9A3C-9E946542A1DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B906FCB-1774-439B-9A3C-9E946542A1DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B906FCB-1774-439B-9A3C-9E946542A1DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B906FCB-1774-439B-9A3C-9E946542A1DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59982367-ADCC-4490-A34E-55C6B3893A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59982367-ADCC-4490-A34E-55C6B3893A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59982367-ADCC-4490-A34E-55C6B3893A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59982367-ADCC-4490-A34E-55C6B3893A89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

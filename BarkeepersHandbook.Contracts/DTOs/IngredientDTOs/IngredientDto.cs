@@ -1,4 +1,4 @@
-namespace BarkeepersHandbook.Application.DTOs.IngredientDTOs;
+namespace BarkeepersHandbook.Contracts.DTOs.IngredientDTOs;
 
 public class IngredientDto
 {

@@ -1,4 +1,4 @@
-namespace BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+namespace BarkeepersHandbook.Contracts.DTOs.CocktailDTOs;
 
 public class ReferenceCocktailDto
 {

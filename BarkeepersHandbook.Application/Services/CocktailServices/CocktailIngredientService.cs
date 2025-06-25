@@ -1,9 +1,7 @@
-using BarkeepersHandbook.Api.Mappers;
-using BarkeepersHandbook.Application.DTOs.CocktailIngredientDTOs;
 using BarkeepersHandbook.Application.Models;
 using Supabase;
 
-namespace BarkeepersHandbook.Api.Services.CocktailServices;
+namespace BarkeepersHandbook.Application.Services.CocktailServices;
 
 public class CocktailIngredientService : ICocktailIngredientService
 {

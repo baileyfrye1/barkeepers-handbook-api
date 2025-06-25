@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace BarkeepersHandbook.Application.DTOs.RatingDTOs;
+namespace BarkeepersHandbook.Contracts.DTOs.RatingDTOs;
 
 public class CocktailRatingObjectDto
 {

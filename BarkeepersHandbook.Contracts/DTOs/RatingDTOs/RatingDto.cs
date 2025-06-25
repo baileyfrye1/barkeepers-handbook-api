@@ -1,6 +1,6 @@
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Contracts.DTOs.CocktailDTOs;
 
-namespace BarkeepersHandbook.Application.DTOs.RatingDTOs;
+namespace BarkeepersHandbook.Contracts.DTOs.RatingDTOs;
 
 public class RatingDto
 {

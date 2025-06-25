@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using BarkeepersHandbook.Api.Services;
-using BarkeepersHandbook.Application.DTOs.RatingDTOs;
+using BarkeepersHandbook.Contracts.DTOs.RatingDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
