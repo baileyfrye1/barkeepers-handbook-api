@@ -11,7 +11,7 @@ namespace BarkeepersHandbook.Application.Models
 		public int Id { get; init; }
 
 		[Reference(typeof(Cocktail), useInnerJoin: false)]
-		public required Cocktail Cocktail { get; set; }
+		public Cocktail? Cocktail { get; set; } = new Cocktail();
 
 		[Column("cocktail_id")]
 		public int CocktailId { get; init; }

@@ -1,4 +1,4 @@
-namespace BarkeepersHandbook.Api.Errors;
+namespace BarkeepersHandbook.Application.Errors;
 
 public class AlreadyRated
 {

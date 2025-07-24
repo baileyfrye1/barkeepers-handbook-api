@@ -3,19 +3,15 @@ using Supabase;
 
 namespace BarkeepersHandbook.Application.Services.CocktailServices;
 
-public class CocktailIngredientService : ICocktailIngredientService
+public class CocktailIngredientService(Client supabase) : ICocktailIngredientService
 {
-	private readonly Client _supabase;
-	public CocktailIngredientService(Client supabase)
-	{
-		_supabase = supabase;
-	}
+	private readonly Client _supabase = supabase;
 
-	public async Task<List<CocktailIngredientDto>> AddManyAsync(List<CocktailIngredient> cocktailIngredients)
+	public async Task<List<CocktailIngredient>> AddManyAsync(List<CocktailIngredient> cocktailIngredients)
 	{
 		var result = await _supabase.From<CocktailIngredient>().Insert(cocktailIngredients);
 
-		var newCocktailIngredients = result.Models.Select(ci => ci.ToCocktailIngredientDto()).ToList();
+		var newCocktailIngredients = result.Models;
 
 		return newCocktailIngredients;
 	}
@@ -23,5 +19,5 @@ public class CocktailIngredientService : ICocktailIngredientService
 
 public interface ICocktailIngredientService
 {
-	Task<List<CocktailIngredientDto>> AddManyAsync(List<CocktailIngredient> cocktailIngredients);
+	Task<List<CocktailIngredient>> AddManyAsync(List<CocktailIngredient> cocktailIngredients);
 }

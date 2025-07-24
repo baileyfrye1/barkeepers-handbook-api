@@ -1,5 +1,6 @@
 using BarkeepersHandbook.Application.Models;
 using BarkeepersHandbook.Contracts.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Contracts.Requests;
 
 namespace BarkeepersHandbook.Api.Mappers
 {
@@ -7,20 +8,21 @@ namespace BarkeepersHandbook.Api.Mappers
 	{
 		public static CocktailDto ToCocktailDto(this Cocktail cocktailModel)
 		{
-			return new CocktailDto
-			{
-				Id = cocktailModel.Id,
-				Name = cocktailModel.Name,
-				Featured = cocktailModel.Featured,
-				Tags = cocktailModel.Tags,
-				CocktailIngredients = cocktailModel.CocktailIngredients.Select(c => c.ToCocktailIngredientDto()).ToList(),
-				ImageUrl = cocktailModel.ImageUrl,
-				CreatedAt = cocktailModel.CreatedAt,
-				UpdatedAt = cocktailModel.UpdatedAt
-			};
+			return new CocktailDto(
+				cocktailModel.Id,
+				cocktailModel.Name,
+				cocktailModel.Featured,
+				cocktailModel.Tags,
+				cocktailModel.UserId,
+				cocktailModel.CocktailIngredients.Select(c => c.ToCocktailIngredientDto()).ToList(),
+				cocktailModel.ImageUrl,
+				cocktailModel.Ratings.ToCocktailRatingsOverviewDto(),
+				cocktailModel.CreatedAt,
+				cocktailModel.UpdatedAt
+				);
 		}
 
-		public static ReferenceCocktailDto ToCocktailReviewDto(this Cocktail cocktailModel)
+		public static ReferenceCocktailDto ToReferenceCocktailDto(this Cocktail cocktailModel)
 		{
 			return new ReferenceCocktailDto
 			{
@@ -40,6 +42,19 @@ namespace BarkeepersHandbook.Api.Mappers
 				UserId = userId,
 				CreatedAt = DateTime.Now,
 				UpdatedAt = DateTime.Now,
+			};
+		}
+
+		public static Cocktail ToCocktailFromUpdateDto(this UpdateCocktailRequestDto updateCocktailDto, CocktailDto existing)
+		{
+			return new Cocktail
+			{
+					Name = updateCocktailDto.Name ?? existing.Name,
+					Featured = updateCocktailDto.Featured ?? existing.Featured,
+					Tags = updateCocktailDto.Tags ?? existing.Tags,
+					CocktailIngredients = updateCocktailDto.CocktailIngredients.ToCocktailIngredientFromDtoList(),
+					CreatedAt = existing.CreatedAt,
+					UpdatedAt = DateTime.Now,
 			};
 		}
 	}

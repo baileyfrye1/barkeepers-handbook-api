@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -18,19 +16,19 @@ namespace BarkeepersHandbook.Application.Models
         public bool Featured { get; set; }
 
         [Column("user_id")]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         [Column("tags")]
         public List<string> Tags { get; set; } = [];
 
         [Column("image")]
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
 
         [Column("steps")]
-        public List<string>? Steps { get; set; }
+        public List<string>? Steps { get; init; }
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; init; }
 
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
@@ -39,6 +37,6 @@ namespace BarkeepersHandbook.Application.Models
         public List<CocktailIngredient> CocktailIngredients { get; set; } = [];
 
         [Reference(typeof(Rating), useInnerJoin: false)]
-        public List<Rating> Ratings { get; set; }
+        public List<Rating> Ratings { get; set; } = [];
     }
 }

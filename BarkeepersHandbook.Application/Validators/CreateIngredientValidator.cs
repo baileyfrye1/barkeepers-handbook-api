@@ -1,9 +1,10 @@
-using BarkeepersHandbook.Application.DTOs.IngredientDTOs;
+using BarkeepersHandbook.Application.Models;
+using BarkeepersHandbook.Contracts.DTOs.IngredientDTOs;
 using FluentValidation;
 
-namespace BarkeepersHandbook.Api.Validators;
+namespace BarkeepersHandbook.Application.Validators;
 
-public class CreateIngredientValidator : AbstractValidator<IngredientDto>
+public class CreateIngredientValidator : AbstractValidator<Ingredient>
 {
     public CreateIngredientValidator()
     {

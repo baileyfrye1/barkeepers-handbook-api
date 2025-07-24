@@ -10,7 +10,7 @@ public static class RatingMappers
         return new RatingDto
         {
             Id = ratingModel.Id,
-            Cocktail = ratingModel.Cocktail,
+            Cocktail = ratingModel.Cocktail.ToReferenceCocktailDto(),
             Rating = ratingModel.RatingValue,
             UserId = ratingModel.UserId,
         };
@@ -18,18 +18,12 @@ public static class RatingMappers
 
     public static CocktailRatingDto ToCocktailRatingDto(this Rating ratingModel)
     {
-        return new CocktailRatingDto
-        {
-            Rating = ratingModel.RatingValue
-        };
+        return new CocktailRatingDto(ratingModel.RatingValue);
     }
     
     public static CocktailRatingDto ToCocktailRatingDto(this RatingDto ratingDto)
     {
-        return new CocktailRatingDto()
-        {
-            Rating = ratingDto.Rating,
-        };
+        return new CocktailRatingDto(ratingDto.Rating);
     }
 
     public static Rating ToRatingFromDto(this CocktailRatingDto ratingDto, int cocktailId, string userId)
@@ -41,6 +35,14 @@ public static class RatingMappers
             RatingValue = ratingDto.Rating,
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now,
+        };
+    }
+
+    public static CocktailRatingsOverviewDto ToCocktailRatingsOverviewDto(this List<Rating> ratingList)
+    {
+        return new CocktailRatingsOverviewDto
+        {
+            Ratings = ratingList.Select(r => r.ToCocktailRatingDto()).ToList(),
         };
     }
 }

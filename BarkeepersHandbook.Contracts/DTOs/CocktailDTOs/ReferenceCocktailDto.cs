@@ -1,10 +1,8 @@
 namespace BarkeepersHandbook.Contracts.DTOs.CocktailDTOs;
 
-public class ReferenceCocktailDto
+public record ReferenceCocktailDto
 {
     public int Id { get; init; }
-
     public string Name { get; init; } = string.Empty;
-
     public string Image { get; init; } = string.Empty;
 }

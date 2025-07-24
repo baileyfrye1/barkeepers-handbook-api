@@ -1,7 +1,8 @@
 using System.Security.Claims;
-using BarkeepersHandbook.Api.Exceptions;
-using BarkeepersHandbook.Api.Services.CocktailServices;
-using BarkeepersHandbook.Application.Models;
+using BarkeepersHandbook.Api.Mappers;
+using BarkeepersHandbook.Application.Exceptions;
+using BarkeepersHandbook.Application.Services.CocktailServices;
+using BarkeepersHandbook.Contracts.Requests;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -71,8 +72,8 @@ namespace BarkeepersHandbook.Api.Controllers
             }
 
             var newCocktailResult = await _cocktailService.CreateCocktailAsync(
-                cocktailRequestDto,
-                userId
+                cocktailRequestDto.ToCocktailFromCreateDto("", userId, cocktailRequestDto.Tags),
+                cocktailRequestDto.Image
             );
 
             return await newCocktailResult.Match<Task<IActionResult>>(
@@ -96,7 +97,7 @@ namespace BarkeepersHandbook.Api.Controllers
 
         // TODO: Look into centralizing validation using FluentValidation
         [Authorize]
-        [HttpPut("{id:int}")]
+        [HttpPatch("{id:int}")]
         public async Task<IActionResult> UpdateCocktail(
             [FromRoute] int id,
             [FromBody] UpdateCocktailRequestDto updateCocktailDto
@@ -115,16 +116,8 @@ namespace BarkeepersHandbook.Api.Controllers
                             : updateCocktailDto.Tags
                     );
 
-                    var cocktailModel = new Cocktail
-                    {
-                        Name = updateCocktailDto.Name,
-                        Featured = updateCocktailDto.Featured.Value,
-                        Tags = updateCocktailDto.Tags,
-                        CocktailIngredients = updateCocktailDto.CocktailIngredients,
-                        CreatedAt = result.CreatedAt,
-                        UpdatedAt = DateTime.Now,
-                    };
-
+                    var cocktailModel = updateCocktailDto.ToCocktailFromUpdateDto(result.ToCocktailDto());
+                    
                     var updatedCocktail = await _cocktailService.UpdateOneAsync(id, cocktailModel);
 
                     return updatedCocktail.Match<IActionResult>(

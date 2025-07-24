@@ -1,10 +1,9 @@
-using BarkeepersHandbook.Api.Errors;
+using BarkeepersHandbook.Application.Errors;
 using BarkeepersHandbook.Application.Models;
-using BarkeepersHandbook.Api.Validators;
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
-using BarkeepersHandbook.Application.Services.CocktailServices;
+using BarkeepersHandbook.Application.Validators;
+using BarkeepersHandbook.Contracts.Requests;
 
-namespace BarkeepersHandbook.Api.Services.CocktailServices;
+namespace BarkeepersHandbook.Application.Services.CocktailServices;
 
 public class CocktailManagementService : ICocktailManagementService
 {
@@ -16,11 +15,11 @@ public class CocktailManagementService : ICocktailManagementService
       _ingredientService = ingredientService;
       _cocktailIngredientService = cocktailIngredientService;
    }
-   public async Task<Dictionary<string, Ingredient>> EnsureCocktailIngredientsExistAsync(CreateCocktailRequestDto cocktailRequestDto)
+   public async Task<Dictionary<string, Ingredient>> EnsureCocktailIngredientsExistAsync(Cocktail cocktailModel)
    {
       var ingredientMap = new Dictionary<string, Ingredient>();
 
-      foreach (var cocktailIngredient in cocktailRequestDto.CocktailIngredients)
+      foreach (var cocktailIngredient in cocktailModel.CocktailIngredients)
       {
          if (string.IsNullOrWhiteSpace(cocktailIngredient.Ingredient.Name))
          {
@@ -64,8 +63,6 @@ public class CocktailManagementService : ICocktailManagementService
                ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
             } 
          }
-
-         cocktailRequestDto.Tags.Add(cocktailIngredient.Ingredient.Name.ToLower());
       }
       
       return ingredientMap;
@@ -73,13 +70,12 @@ public class CocktailManagementService : ICocktailManagementService
    
    public List<CocktailIngredient> MapCocktailIngredients(
       Dictionary<string, Ingredient> ingredientMap, 
-      Cocktail cocktailModel, 
-      CreateCocktailRequestDto cocktailRequestDto
+      Cocktail cocktailModel
       )
    {
       var newCocktailIngredientsList = new List<CocktailIngredient>();
 
-      foreach (var cocktailIngredientDto in cocktailRequestDto.CocktailIngredients)
+      foreach (var cocktailIngredientDto in cocktailModel.CocktailIngredients)
       {
          var ingredient = ingredientMap[cocktailIngredientDto.Ingredient.Name];
 
@@ -104,11 +100,11 @@ public class CocktailManagementService : ICocktailManagementService
       return newCocktailIngredientsList;
    }
 
-   public async Task AddCocktailIngredients(CreateCocktailRequestDto cocktailRequestDto, Cocktail cocktailModel)
+   public async Task AddCocktailIngredients(Cocktail cocktailModel)
    {
-      var ingredientMap = await EnsureCocktailIngredientsExistAsync(cocktailRequestDto);
+      var ingredientMap = await EnsureCocktailIngredientsExistAsync(cocktailModel);
         
-      var newCocktailIngredientsList = MapCocktailIngredients(ingredientMap, cocktailModel, cocktailRequestDto);
+      var newCocktailIngredientsList = MapCocktailIngredients(ingredientMap, cocktailModel);
         
       await _cocktailIngredientService.AddManyAsync(
          newCocktailIngredientsList
@@ -118,12 +114,11 @@ public class CocktailManagementService : ICocktailManagementService
 
 public interface ICocktailManagementService
 {
-   Task<Dictionary<string, Ingredient>> EnsureCocktailIngredientsExistAsync(CreateCocktailRequestDto cocktailRequestDto);
+   Task<Dictionary<string, Ingredient>> EnsureCocktailIngredientsExistAsync(Cocktail cocktailModel);
    List<CocktailIngredient> MapCocktailIngredients(
       Dictionary<string, Ingredient> ingredientMap,
-      Cocktail cocktail,
-      CreateCocktailRequestDto cocktailRequestDto
+      Cocktail cocktailModel
    );
 
-   Task AddCocktailIngredients(CreateCocktailRequestDto cocktailRequestDto, Cocktail cocktailModel);
+   Task AddCocktailIngredients(Cocktail cocktailModel);
 }

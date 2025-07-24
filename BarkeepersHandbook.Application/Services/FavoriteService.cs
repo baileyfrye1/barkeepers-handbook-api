@@ -1,9 +1,9 @@
-using BarkeepersHandbook.Api.Errors;
-using BarkeepersHandbook.Application.DTOs.FavoriteDTOs;
+using BarkeepersHandbook.Application.Errors;
 using BarkeepersHandbook.Application.Models;
+using BarkeepersHandbook.Contracts.DTOs.FavoriteDTOs;
 using OneOf;
 
-namespace BarkeepersHandbook.Api.Services;
+namespace BarkeepersHandbook.Application.Services;
 
 public class FavoriteService : IFavoriteService
 {

@@ -1,7 +1,7 @@
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Contracts.Requests;
 using FluentValidation;
 
-namespace BarkeepersHandbook.Api.Validators
+namespace BarkeepersHandbook.Application.Validators
 {
 	public class UpdateCocktailValidator : AbstractValidator<UpdateCocktailRequestDto>
 	{

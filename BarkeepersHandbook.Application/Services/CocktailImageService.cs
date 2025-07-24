@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Http;
 using Client = Supabase.Client;
 using FileOptions = Supabase.Storage.FileOptions;
 
-namespace BarkeepersHandbook.Api.Services;
+namespace BarkeepersHandbook.Application.Services;
 
 public class CocktailImageService : ICocktailImageService
 {

@@ -1,4 +1,4 @@
-namespace BarkeepersHandbook.Api.Validators
+namespace BarkeepersHandbook.Application.Validators
 {
 	public class ValidationFailureResponse
 	{

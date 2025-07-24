@@ -1,6 +1,6 @@
 namespace BarkeepersHandbook.Contracts.DTOs.RatingDTOs;
 
-public class CocktailRatingObjectDto
+public class CocktailRatingsOverviewDto
 {
     public List<CocktailRatingDto> Ratings { get; set; } = [];
     public double AverageRating => Ratings.Count != 0 ? Math.Round(Ratings.Average(r => r.Rating), 1) : 0;

@@ -1,21 +1,19 @@
-using BarkeepersHandbook.Api.Mappers;
-using BarkeepersHandbook.Api.Errors;
+using BarkeepersHandbook.Application.Errors;
 using BarkeepersHandbook.Application.Models;
-using BarkeepersHandbook.Api.Validators;
-using BarkeepersHandbook.Application.DTOs.IngredientDTOs;
+using BarkeepersHandbook.Application.Validators;
 using FluentValidation;
 using OneOf;
 using OneOf.Types;
 using Supabase;
 
-namespace BarkeepersHandbook.Api.Services;
+namespace BarkeepersHandbook.Application.Services;
 
 public class IngredientService : IIngredientService
 {
 	private readonly Client _supabase;
-	private readonly IValidator<IngredientDto> _validator;
+	private readonly IValidator<Ingredient> _validator;
 
-	public IngredientService(Client supabase, IValidator<IngredientDto> validator)
+	public IngredientService(Client supabase, IValidator<Ingredient> validator)
 	{
 		_supabase = supabase;
 		_validator = validator;
@@ -23,7 +21,7 @@ public class IngredientService : IIngredientService
 
 	public async Task<OneOf<Ingredient, ValidationFailed, UnexpectedError>> AddOneAsync(Ingredient ingredient)
 	{
-		var validationResult = await _validator.ValidateAsync(ingredient.ToIngredientDto());
+		var validationResult = await _validator.ValidateAsync(ingredient);
 
 		if (!validationResult.IsValid)
 		{

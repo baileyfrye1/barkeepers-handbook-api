@@ -1,14 +1,14 @@
-using BarkeepersHandbook.Api.Mappers;
-using BarkeepersHandbook.Api.Errors;
-using BarkeepersHandbook.Api.Exceptions;
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
+using BarkeepersHandbook.Application.Errors;
+using BarkeepersHandbook.Application.Exceptions;
 using BarkeepersHandbook.Application.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OneOf;
 using OneOf.Types;
 using Supabase.Postgrest;
 using Client = Supabase.Client;
 
-namespace BarkeepersHandbook.Api.Services.CocktailServices;
+namespace BarkeepersHandbook.Application.Services.CocktailServices;
 
 public class CocktailService : ICocktailService
 {
@@ -27,31 +27,33 @@ public class CocktailService : ICocktailService
         _cocktailManagementService = cocktailManagementService;
     }
 
-    public async Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto, string userId)
-    {
-        var imageUrl = await _imageService.UploadImage(cocktailRequestDto.Image);
-        var allTags = new List<string> (cocktailRequestDto.Tags);
+    public async Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(Cocktail cocktail, IFormFile imageFile)
+         {
+             var imageUrl = await _imageService.UploadImage(imageFile);
+             var allTags = new List<string> (cocktail.Tags);
+     
+             foreach (var cocktailIngredient in cocktail.CocktailIngredients)
+             {
+                allTags.Add(cocktailIngredient.Ingredient.Name.ToLower()); 
+             }
 
-        foreach (var cocktailIngredient in cocktailRequestDto.CocktailIngredients)
-        {
-           allTags.Add(cocktailIngredient.Ingredient.Name.ToLower()); 
-        }
-
-        var cocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(imageUrl, userId, allTags);
-        var result = await _supabase.From<Cocktail>().Insert(cocktailModel);
-        var createdCocktail = result.Model;
-
-        if (createdCocktail is null)
-        {
-            return new UnexpectedError("Failed to insert cocktail into database.");
-        }
-
-        await _cocktailManagementService.AddCocktailIngredients(cocktailRequestDto, createdCocktail);
-
-        return createdCocktail;
-    }
+             cocktail.Tags = allTags;
+             cocktail.ImageUrl = imageUrl;
+     
+             var result = await _supabase.From<Cocktail>().Insert(cocktail);
+             var createdCocktail = result.Model;
+     
+             if (createdCocktail is null)
+             {
+                 return new UnexpectedError("Failed to insert cocktail into database.");
+             }
+     
+             await _cocktailManagementService.AddCocktailIngredients(createdCocktail);
+     
+             return createdCocktail;
+         }
     
-    public async Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly)
+    public async Task<(List<Cocktail>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly)
     {
         var count = await _supabase.From<Cocktail>().Select("*").Count(Constants.CountType.Exact);
         if (countOnly)
@@ -76,12 +78,12 @@ public class CocktailService : ICocktailService
 
         var result = await query.Range(offset, itemLimit).Get();
 
-        var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
+        var cocktails = result.Models;
         
         var cocktailsWithRatings = cocktails.Select(async c =>
         {
             var fetchedRatings = await _ratingService.GetAllRatingsByCocktailIdAsync(c.Id);
-            c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
+            // c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
             return c;
         }).ToList();
         
@@ -91,25 +93,25 @@ public class CocktailService : ICocktailService
     }
 
     // TODO: Optimize query to only run one ratings db call instead of fetching ratings for each featured cocktail
-    public async Task<List<CocktailDto>> GetFeaturedAsync()
+    public async Task<List<Cocktail>> GetFeaturedAsync()
     {
         var result = await _supabase.From<Cocktail>().Select("*, cocktail_id:cocktail_ingredients!inner(*)").Where(n => n.Featured == true).Get();
 
-        var cocktails = result.Models.Select(c => c.ToCocktailDto()).ToList();
+        var cocktails = result.Models;
         
         var cocktailsWithRatings = cocktails.Select(async c =>
         {
             var fetchedRatings = await _ratingService.GetAllRatingsByCocktailIdAsync(c.Id);
-            c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
+            // c.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
             return c;
         }).ToList();
 
         var awaitedCocktails = (await Task.WhenAll(cocktailsWithRatings)).ToList();
 
-        return cocktails;
+        return awaitedCocktails;
     }
 
-    public async Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id)
+    public async Task<OneOf<Cocktail, NotFound>> GetOneByIdAsync(int id)
     {
         var result = await _supabase
             .From<Cocktail>()
@@ -121,12 +123,12 @@ public class CocktailService : ICocktailService
         {
             return new NotFound();
         }
-
-        var cocktail = result.Model.ToCocktailDto();
+        
+        var cocktail = result.Model;
         
         var fetchedRating = await _ratingService.GetAllRatingsByCocktailIdAsync(id);
 
-        cocktail.RatingsData.Ratings = fetchedRating.Select(r => r.ToCocktailRatingDto()).ToList();
+        // cocktail.Ratings = fetchedRating;
 
         return cocktail;
     }
@@ -170,10 +172,10 @@ public class CocktailService : ICocktailService
 
 public interface ICocktailService
 {
-    Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(CreateCocktailRequestDto cocktailRequestDto, string userId);
-    Task<(List<CocktailDto>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly);
-    Task<List<CocktailDto>> GetFeaturedAsync();
-    Task<OneOf<CocktailDto, NotFound>> GetOneByIdAsync(int id);
+    Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(Cocktail cocktail, IFormFile imageFile);
+    Task<(List<Cocktail>? Cocktails, int? TotalCount)> GetAllAsync(string? search, int page, bool countOnly);
+    Task<List<Cocktail>> GetFeaturedAsync();
+    Task<OneOf<Cocktail, NotFound>> GetOneByIdAsync(int id);
     Task<OneOf<Success, NotFound>> UpdateOneAsync(int id, Cocktail cocktailModel);
     Task DeleteOneAsync(int id);
 }

@@ -1,4 +1,4 @@
-namespace BarkeepersHandbook.Api.Exceptions;
+namespace BarkeepersHandbook.Application.Exceptions;
 
 public class ServiceLayerException : Exception
 {

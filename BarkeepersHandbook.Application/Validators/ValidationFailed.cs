@@ -1,6 +1,6 @@
 using FluentValidation.Results;
 
-namespace BarkeepersHandbook.Api.Validators
+namespace BarkeepersHandbook.Application.Validators
 {
     public record ValidationFailed(IEnumerable<ValidationFailure> Errors)
     {

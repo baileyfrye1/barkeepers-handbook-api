@@ -24,5 +24,11 @@ namespace BarkeepersHandbook.Api.Mappers
 				Unit = cocktailIngredientDto.Unit,
 			};
 		}
+
+		public static List<CocktailIngredient> ToCocktailIngredientFromDtoList(
+			this List<CocktailIngredientDto> cocktailIngredientDtos)
+		{
+			return cocktailIngredientDtos.Select(ci => ci.ToCocktailIngredientFromDto()).ToList();
+		}
 	}
 }
