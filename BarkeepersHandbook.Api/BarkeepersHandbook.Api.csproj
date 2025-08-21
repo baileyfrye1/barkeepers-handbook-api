@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Clerk.BackendAPI" Version="0.7.0" />
-    <PackageReference Include="FluentValidation" Version="8.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
@@ -21,13 +20,27 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
-    <PackageReference Include="OneOf" Version="3.0.271" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.1.5" />
     <PackageReference Include="Supabase" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BarkeepersHandbook.Application\BarkeepersHandbook.Application.csproj" />
+    <ProjectReference Include="..\BarkeepersHandbook.Contracts\BarkeepersHandbook.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="publish\publish\web.config" />
+    <_ContentIncludedByDefault Remove="publish\web.config" />
+    <_ContentIncludedByDefault Remove="publish\api.deps.json" />
+    <_ContentIncludedByDefault Remove="publish\api.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="publish\api.staticwebassets.endpoints.json" />
+    <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+    <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\api.deps.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\api.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\api.staticwebassets.endpoints.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\appsettings.json" />
   </ItemGroup>
 
 </Project>

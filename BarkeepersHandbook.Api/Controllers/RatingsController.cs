@@ -1,6 +1,7 @@
 using System.Security.Claims;
-using BarkeepersHandbook.Api.Services;
-using BarkeepersHandbook.Application.DTOs.RatingDTOs;
+using BarkeepersHandbook.Api.Mappers;
+using BarkeepersHandbook.Application.Services;
+using BarkeepersHandbook.Contracts.DTOs.RatingDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +35,7 @@ namespace BarkeepersHandbook.Api.Controllers;
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             
-            var newRatingResult = await _ratingService.CreateRatingAsync(ratingDto, cocktailId, userId);
+            var newRatingResult = await _ratingService.CreateRatingAsync(ratingDto.ToRatingFromDto(cocktailId, userId), cocktailId, userId);
 
             return newRatingResult.Match<IActionResult>(
                 r => CreatedAtAction(nameof(GetAllRatings), new { id = r.Id }, r),
@@ -50,11 +51,11 @@ namespace BarkeepersHandbook.Api.Controllers;
                 );
         }
         
-        [HttpPatch("{id:int}")] public async Task<IActionResult> UpdateRating([FromRoute] int id, [FromBody] CocktailRatingDto ratingDto)
+        [HttpPatch("{cocktailId:int}")] public async Task<IActionResult> UpdateRating([FromRoute] int cocktailId, [FromBody] CocktailRatingDto ratingDto)
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var result = await _ratingService.UpdateRatingAsync(ratingDto, id, userId);
+            var result = await _ratingService.UpdateRatingAsync(ratingDto.ToRatingFromDto(cocktailId, userId), cocktailId, userId);
 
             return result.Match<IActionResult>(
                 s => Ok(),

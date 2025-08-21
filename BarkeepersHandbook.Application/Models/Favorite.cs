@@ -1,5 +1,3 @@
-using System;
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -12,7 +10,7 @@ namespace BarkeepersHandbook.Application.Models
 		public int Id { get; init; }
 
 		[Reference(typeof(Cocktail))]
-		public ReferenceCocktailDto Cocktail { get; set; } = new ReferenceCocktailDto() { };
+		public required Cocktail Cocktail { get; set; }
 
 		[Column("cocktail_id")]
 		public int CocktailId { get; set; }

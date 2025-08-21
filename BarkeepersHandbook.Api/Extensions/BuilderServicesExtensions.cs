@@ -1,8 +1,9 @@
-using BarkeepersHandbook.Api.Services;
-using BarkeepersHandbook.Api.Services.CocktailServices;
-using BarkeepersHandbook.Api.Validators;
-using BarkeepersHandbook.Application.DTOs.CocktailDTOs;
-using BarkeepersHandbook.Application.DTOs.IngredientDTOs;
+using BarkeepersHandbook.Application.Models;
+using BarkeepersHandbook.Application.Services;
+using BarkeepersHandbook.Application.Services.CocktailServices;
+using BarkeepersHandbook.Application.Validators;
+using BarkeepersHandbook.Contracts.DTOs.IngredientDTOs;
+using BarkeepersHandbook.Contracts.Requests;
 using FluentValidation;
 
 namespace BarkeepersHandbook.Api.Extensions
@@ -22,7 +23,7 @@ namespace BarkeepersHandbook.Api.Extensions
             services.AddScoped<IIngredientService,IngredientService>();
             services.AddScoped<ICocktailManagementService, CocktailManagementService>();
             services.AddScoped<IValidator<CreateCocktailRequestDto>, CreateCocktailValidator>();
-            services.AddScoped<IValidator<IngredientDto>, CreateIngredientValidator>();
+            services.AddScoped<IValidator<Ingredient>, CreateIngredientValidator>();
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<ICocktailImageService, CocktailImageService>();
             services.AddScoped<IFavoriteService, FavoriteService>();

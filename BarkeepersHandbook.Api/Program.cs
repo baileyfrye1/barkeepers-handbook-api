@@ -74,8 +74,8 @@ var supabaseUrl = builder.Configuration["Supabase:Url"];
 var supabaseKey = builder.Configuration["Supabase:Key"];
 
 // Initialize Supabase client
-var options = new SupabaseOptions { AutoConnectRealtime = true, AutoRefreshToken = true };
-var supabase = new Client(supabaseUrl, supabaseKey, options);
+var supabaseOptions = new SupabaseOptions { AutoConnectRealtime = true, AutoRefreshToken = true };
+var supabase = new Client(supabaseUrl!, supabaseKey, supabaseOptions);
 
 // Register Supabase as a singleton service
 builder.Services.AddSingleton(supabase);

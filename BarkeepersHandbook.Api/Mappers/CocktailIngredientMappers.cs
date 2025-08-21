@@ -1,5 +1,5 @@
-using BarkeepersHandbook.Application.DTOs.CocktailIngredientDTOs;
 using BarkeepersHandbook.Application.Models;
+using BarkeepersHandbook.Contracts.DTOs.CocktailIngredientDTOs;
 
 namespace BarkeepersHandbook.Api.Mappers
 {
@@ -23,6 +23,12 @@ namespace BarkeepersHandbook.Api.Mappers
 				Amount = cocktailIngredientDto.Amount,
 				Unit = cocktailIngredientDto.Unit,
 			};
+		}
+
+		public static List<CocktailIngredient> ToCocktailIngredientFromDtoList(
+			this List<CocktailIngredientDto> cocktailIngredientDtos)
+		{
+			return cocktailIngredientDtos.Select(ci => ci.ToCocktailIngredientFromDto()).ToList();
 		}
 	}
 }

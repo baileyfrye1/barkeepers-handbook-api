@@ -1,0 +1,7 @@
+namespace BarkeepersHandbook.Application.Validators
+{
+	public class ValidationFailureResponse
+	{
+		public List<ValidationResponse> Errors { get; init; } = new();
+	}
+}
