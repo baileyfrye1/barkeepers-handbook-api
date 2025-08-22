@@ -31,14 +31,14 @@ namespace BarkeepersHandbook.Api.Mappers
 			};
 		}
 
-		public static Cocktail ToCocktailFromCreateDto(this CreateCocktailRequestDto cocktailRequestDto, string imageUrl, string userId, List<string> allTags)
+		public static Cocktail ToCocktailFromCreateDto(this CreateCocktailRequestDto cocktailRequestDto, string userId, List<string> allTags)
 		{
 			return new Cocktail
 			{
 				Name = cocktailRequestDto.Name,
 				Featured = cocktailRequestDto.Featured,
 				Tags = allTags,
-				ImageUrl = imageUrl,
+				ImageUrl = string.Empty,
 				UserId = userId,
 				CreatedAt = DateTime.Now,
 				UpdatedAt = DateTime.Now,

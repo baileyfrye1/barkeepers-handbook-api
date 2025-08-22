@@ -71,22 +71,21 @@ namespace BarkeepersHandbook.Api.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
+            var newCocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(userId, cocktailRequestDto.Tags);
+
             var newCocktailResult = await _cocktailService.CreateCocktailAsync(
-                cocktailRequestDto.ToCocktailFromCreateDto("", userId, cocktailRequestDto.Tags),
+                newCocktailModel,
                 cocktailRequestDto.Image
             );
 
             return await newCocktailResult.Match<Task<IActionResult>>(
-                cocktail =>
-                {
-                    return Task.FromResult<IActionResult>(
-                        CreatedAtAction(
-                            nameof(GetOneCocktailById),
-                            new { id = cocktail.Id },
-                            cocktail
-                        )
-                    );
-                },
+                cocktail => Task.FromResult<IActionResult>(
+                    CreatedAtAction(
+                        nameof(GetOneCocktailById),
+                        new { id = cocktail.Id },
+                        cocktail
+                    )
+                ),
                 error =>
                 {
                     _logger.LogError($"Unexpected error while creating cocktail: {error.Message}");

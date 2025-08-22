@@ -70,16 +70,16 @@ public class CocktailManagementService : ICocktailManagementService
    {
       var newCocktailIngredientsList = new List<CocktailIngredient>();
 
-      foreach (var cocktailIngredientDto in cocktailModel.CocktailIngredients)
+      foreach (var cocktailIngredient in cocktailModel.CocktailIngredients)
       {
-         var ingredient = ingredientMap[cocktailIngredientDto.Ingredient.Name];
+         var ingredient = ingredientMap[cocktailIngredient.Ingredient.Name];
 
-         var unitValue = string.IsNullOrWhiteSpace(cocktailIngredientDto.Unit)
+         var unitValue = string.IsNullOrWhiteSpace(cocktailIngredient.Unit)
             ? "oz"
-            : cocktailIngredientDto.Unit;
+            : cocktailIngredient.Unit;
 
          var amountValue =
-            cocktailIngredientDto.Amount != 0 ? cocktailIngredientDto.Amount : null;
+            cocktailIngredient.Amount != 0 ? cocktailIngredient.Amount : null;
 
          var newCocktailIngredientModel = new CocktailIngredient
          {
