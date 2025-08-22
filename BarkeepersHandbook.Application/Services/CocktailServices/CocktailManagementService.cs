@@ -1,7 +1,5 @@
-using BarkeepersHandbook.Application.Errors;
 using BarkeepersHandbook.Application.Models;
-using BarkeepersHandbook.Application.Validators;
-using BarkeepersHandbook.Contracts.Requests;
+using FluentValidation;
 
 namespace BarkeepersHandbook.Application.Services.CocktailServices;
 
@@ -24,44 +22,41 @@ public class CocktailManagementService : ICocktailManagementService
          if (string.IsNullOrWhiteSpace(cocktailIngredient.Ingredient.Name))
          {
             throw new ArgumentException(
-               "Error creating cocktail. Please provide ingredient name."
+               "Ingredient name cannot be empty"
             );
          }
 
-         if (
-            !ingredientMap.TryGetValue(
-               cocktailIngredient.Ingredient.Name,
-               out var ingredient
-            )
-         )
-         {
-            var getByNameResult = await _ingredientService.GetOneByNameAsync(cocktailIngredient.Ingredient.Name);
+         if (ingredientMap.TryGetValue(
+                cocktailIngredient.Ingredient.Name,
+                out var ingredient
+             )) continue;
+         
+         var getByNameResult = await _ingredientService.GetOneByNameAsync(cocktailIngredient.Ingredient.Name);
 
-            if (getByNameResult.TryPickT0(out var foundIngredient, out var notFound))
+         if (getByNameResult.TryPickT0(out var foundIngredient, out _))
+         {
+            ingredient = foundIngredient;
+         }
+         else
+         {
+            var newIngredientModel = new Ingredient
             {
-               ingredient = foundIngredient;
-            }
-            else
-            {
-               var newIngredientModel = new Ingredient
-               {
-                  Name = cocktailIngredient.Ingredient.Name,
-                  CreatedAt = DateTime.Now,
-               };
+               Name = cocktailIngredient.Ingredient.Name,
+               CreatedAt = DateTime.Now,
+            };
                
-               var addIngredientResult = await _ingredientService.AddOneAsync(newIngredientModel);
+            var addIngredientResult = await _ingredientService.AddOneAsync(newIngredientModel);
                
-               addIngredientResult.Switch(
-                  i => ingredient = i,
-                  vf => new ValidationFailed(vf.Errors),
-                  error => new UnexpectedError("Ingredient could not be added.", error.Details)
-               );
-            }
+            addIngredientResult.Switch(
+               i => ingredient = i,
+               vf => throw new ValidationException(string.Join(", ", vf.Errors)),
+               error => throw new InvalidOperationException(error.Details)
+            );
+         }
             
-            if (ingredient != null)
-            {
-               ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
-            } 
+         if (ingredient != null)
+         {
+            ingredientMap[cocktailIngredient.Ingredient.Name] = ingredient;
          }
       }
       
