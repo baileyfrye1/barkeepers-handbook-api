@@ -63,7 +63,7 @@ namespace BarkeepersHandbook.Api.Controllers
             var userId = User
                 .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 ?.Value;
-
+            
             var validationResult = _createValidator.Validate(cocktailRequestDto);
 
             if (!validationResult.IsValid)
@@ -71,7 +71,7 @@ namespace BarkeepersHandbook.Api.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var newCocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(userId, cocktailRequestDto.Tags);
+            var newCocktailModel = cocktailRequestDto.ToCocktailFromCreateDto(userId);
 
             var newCocktailResult = await _cocktailService.CreateCocktailAsync(
                 newCocktailModel,

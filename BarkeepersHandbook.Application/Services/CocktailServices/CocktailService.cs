@@ -30,14 +30,12 @@ public class CocktailService : ICocktailService
     public async Task<OneOf<Cocktail, UnexpectedError>> CreateCocktailAsync(Cocktail cocktail, IFormFile imageFile)
          {
              var imageUrl = await _imageService.UploadImage(imageFile);
-             var allTags = new List<string> (cocktail.Tags);
      
              foreach (var cocktailIngredient in cocktail.CocktailIngredients)
              {
-                allTags.Add(cocktailIngredient.Ingredient.Name.ToLower()); 
+                cocktail.Tags.Add(cocktailIngredient.Ingredient.Name.ToLower()); 
              }
 
-             cocktail.Tags = allTags;
              cocktail.ImageUrl = imageUrl;
      
              var result = await _supabase.From<Cocktail>().Insert(cocktail);
