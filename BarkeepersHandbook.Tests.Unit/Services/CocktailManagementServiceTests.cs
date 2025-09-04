@@ -343,4 +343,70 @@ public class CocktailManagementServiceTests
            await result.Should().ThrowAsync<InvalidOperationException>();
        }
    }
+
+   public class MapCocktailIngredientsTests : CocktailManagementServiceTests
+   {
+       [Fact]
+       public void HealthyIngredientDictionary_ReturnsIngredientList()
+       {
+           // Arrange
+             List<CocktailIngredient> cocktailIngredients =
+             [
+                 new CocktailIngredient
+                 {
+                     Id = 1,
+                     CocktailId = 1,
+                     IngredientId = 1,
+                     Ingredient = new Ingredient { Id = 1, Name = "Light Rum", CreatedAt = DateTime.Now },
+                     Amount = 2,
+                     Unit = "oz",
+                     CreatedAt = DateTime.Now,
+                 },
+
+                 new CocktailIngredient
+                 {
+                     Id = 2,
+                     CocktailId = 1,
+                     IngredientId = 2,
+                     Ingredient = new Ingredient { Id = 2, Name = "Lime Juice", CreatedAt = DateTime.Now },
+                     Amount = 0.75,
+                     Unit = "oz",
+                     CreatedAt = DateTime.Now,
+                 },
+
+                 new CocktailIngredient
+                 {
+                     Id = 3,
+                     CocktailId = 1,
+                     IngredientId = 3,
+                     Ingredient = new Ingredient { Id = 3, Name = "Simple Syrup", CreatedAt = DateTime.Now },
+                     Amount = 0.75,
+                     Unit = "oz",
+                     CreatedAt = DateTime.Now,
+                 }
+
+             ];
+             
+             var cocktail = new Cocktail
+             {
+                 Id = 1,
+                 Name = "Daiquiri",
+                 Featured = true,
+                 UserId = Guid.NewGuid().ToString(),
+                 Tags = ["lime juice", "light rum", "simple syrup", "classic"],
+                 ImageUrl = "https://fakeimageurl.com/image.png",
+                 CocktailIngredients = cocktailIngredients,
+                 CreatedAt = DateTime.Now,
+                 UpdatedAt = DateTime.Now,
+             };
+
+             var ingredientDict = cocktailIngredients.ToDictionary(ci => ci.Ingredient.Name, ci => ci.Ingredient);
+           // Act
+           var result = _cocktailManagementService.MapCocktailIngredients(ingredientDict, cocktail);
+
+           // Assert
+           result.Should().NotBeNull();
+           result.Should().HaveCount(cocktail.CocktailIngredients.Count);
+       }
+   }
 }
