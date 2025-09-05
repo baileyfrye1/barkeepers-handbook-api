@@ -8,5 +8,5 @@ public record CreateCocktailRequestDto(
     bool Featured, 
     List<string>? Tags,
     List<CocktailIngredientDto> CocktailIngredients, 
-    IFormFile Image
+    IFormFile? Image
 );
