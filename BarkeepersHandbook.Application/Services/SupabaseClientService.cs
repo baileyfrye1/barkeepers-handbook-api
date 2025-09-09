@@ -11,7 +11,7 @@ public class SupabaseClientService<TModel> : ISupabaseClientService<TModel> wher
 {
     private readonly Client _supabaseClient;
 
-    private SupabaseClientService(Client supabaseClient)
+    public SupabaseClientService(Client supabaseClient)
     {
         _supabaseClient = supabaseClient;
     }

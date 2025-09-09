@@ -17,6 +17,7 @@ namespace BarkeepersHandbook.Api.Mappers
 		{
 			return new Ingredient
 			{
+				Name = ingredientDto.Name,
 			};
 		}
 	}
