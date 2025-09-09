@@ -7,7 +7,7 @@ public class CocktailManagementService : ICocktailManagementService
 {
    private readonly IIngredientService _ingredientService;
    private readonly ICocktailIngredientService _cocktailIngredientService;
-
+   
    public CocktailManagementService(IIngredientService ingredientService, ICocktailIngredientService cocktailIngredientService)
    {
       _ingredientService = ingredientService;

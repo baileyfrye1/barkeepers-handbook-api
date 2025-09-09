@@ -19,10 +19,10 @@ public class CocktailManagementServiceTests
    private readonly CocktailManagementService _cocktailManagementService;
 
    protected CocktailManagementServiceTests()
-   {
+   { 
        _ingredientServiceMock = new Mock<IIngredientService>();
-      _cocktailIngredientServiceMock = new Mock<ICocktailIngredientService>();
-      _cocktailManagementService = new CocktailManagementService(_ingredientServiceMock.Object, _cocktailIngredientServiceMock.Object);
+       _cocktailIngredientServiceMock = new Mock<ICocktailIngredientService>();
+       _cocktailManagementService = new CocktailManagementService(_ingredientServiceMock.Object, _cocktailIngredientServiceMock.Object);
    }
 
    public class EnsureCocktailIngredientsExistAsyncTests : CocktailManagementServiceTests

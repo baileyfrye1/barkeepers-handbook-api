@@ -59,7 +59,7 @@ public class CocktailMappersTests
          result.Should().BeOfType<Cocktail>();
          result.Featured.Should().BeTrue();
          result.UserId.Should().Be(userId);
-         result.Tags.Should().BeOfType<List<string>>();
+         result.Tags.Should().BeOfType<HashSet<string>>();
          result.Tags.Should().BeEmpty();
       }
       
@@ -98,7 +98,7 @@ public class CocktailMappersTests
             },
          ];
 
-         List<string> tags = ["classic", "sweet"];
+         HashSet<string> tags = ["classic", "sweet"];
          
          var sut = new CreateCocktailRequestDto(Name: "Daiquiri", Featured: true, Tags: tags,
             CocktailIngredients: cocktailIngredients, Image: imageMock.Object);

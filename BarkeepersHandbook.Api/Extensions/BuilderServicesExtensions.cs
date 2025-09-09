@@ -27,6 +27,7 @@ namespace BarkeepersHandbook.Api.Extensions
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<ICocktailImageService, CocktailImageService>();
             services.AddScoped<IFavoriteService, FavoriteService>();
+            services.AddScoped<ISupabaseClientService<Cocktail>, SupabaseClientService<Cocktail>>();
             return services;
         }
     }

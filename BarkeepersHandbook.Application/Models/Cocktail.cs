@@ -19,10 +19,10 @@ namespace BarkeepersHandbook.Application.Models
         public string UserId { get; set; } = string.Empty;
 
         [Column("tags")]
-        public List<string> Tags { get; set; } = [];
+        public HashSet<string> Tags { get; set; } = [];
 
         [Column("image")]
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; } = string.Empty;
 
         [Column("steps")]
         public List<string>? Steps { get; init; }

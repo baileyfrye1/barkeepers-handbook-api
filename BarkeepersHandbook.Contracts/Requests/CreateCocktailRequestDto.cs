@@ -6,7 +6,7 @@ namespace BarkeepersHandbook.Contracts.Requests;
 public record CreateCocktailRequestDto(
     string Name,
     bool Featured, 
-    List<string>? Tags,
+    HashSet<string>? Tags,
     List<CocktailIngredientDto> CocktailIngredients, 
     IFormFile? Image
 );
