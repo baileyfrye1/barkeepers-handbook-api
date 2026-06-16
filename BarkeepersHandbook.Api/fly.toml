@@ -4,7 +4,7 @@
 #
 
 app = 'barkeepers-handbook-api'
-primary_region = 'atl'
+primary_region = 'iad'
 
 [build]
 

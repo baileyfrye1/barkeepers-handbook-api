@@ -88,7 +88,7 @@ namespace BarkeepersHandbook.Api.Controllers
                 ),
                 error =>
                 {
-                    _logger.LogError($"Unexpected error while creating cocktail: {error.Message}");
+                    _logger.LogError("Unexpected error while creating cocktail: {ErrorMessage}", error.Message);
                     return Task.FromResult<IActionResult>(StatusCode(500, error.Message));
                 }
             );

@@ -23,7 +23,7 @@ public class SupabaseClientService<TModel> : ISupabaseClientService<TModel> wher
 
     public IPostgrestTable<TModel> GetAll()
     {
-        return _supabaseClient.From<TModel>().Select("*");
+        return _supabaseClient.From<TModel>().Select("*, cocktail_id:ratings!inner(*)");
     }
 
     public Task<int> Count()
@@ -40,7 +40,7 @@ public class SupabaseClientService<TModel> : ISupabaseClientService<TModel> wher
     {
         return _supabaseClient
             .From<TModel>()
-            .Select("*, cocktail_id:cocktail_ingredients!inner(*)")
+            .Select("*, cocktail_id:cocktail_ingredients!inner(*), cocktail_)id:ratings!inner(*)")
             .Where(predicate)
             .Get();
     }

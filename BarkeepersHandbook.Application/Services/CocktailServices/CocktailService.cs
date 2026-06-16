@@ -48,7 +48,7 @@ public class CocktailService : ICocktailService
             return new UnexpectedError("Failed to insert cocktail into database.");
         }
  
-        await _cocktailManagementService.AddCocktailIngredients(createdCocktail);
+        await _cocktailManagementService.AddCocktailIngredients(createdCocktail, cocktail.CocktailIngredients);
  
         return createdCocktail; 
     }
@@ -80,16 +80,16 @@ public class CocktailService : ICocktailService
 
         var cocktails = result.Models;
         
-        var cocktailsWithRatings = cocktails.Select(async c =>
-        {
-            var fetchedRatings = await _ratingService.GetAllRatingsByCocktailIdAsync(c.Id);
-            // c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
-            return c;
-        }).ToList();
-        
-        var awaitedCocktails = (await Task.WhenAll(cocktailsWithRatings)).ToList();
+        // var cocktailsWithRatings = cocktails.Select(async c =>
+        // {
+        //     var fetchedRatings = await _ratingService.GetAllRatingsByCocktailIdAsync(c.Id);
+        //     // c.RatingsData.Ratings = fetchedRatings.Select(r => r.ToCocktailRatingDto()).ToList();
+        //     return c;
+        // }).ToList();
+        //
+        // var awaitedCocktails = (await Task.WhenAll(cocktailsWithRatings)).ToList();
 
-        return (Cocktails: awaitedCocktails, TotalCount: count);
+        return (Cocktails: cocktails, TotalCount: count);
     }
 
     // TODO: Optimize query to only run one ratings db call instead of fetching ratings for each featured cocktail

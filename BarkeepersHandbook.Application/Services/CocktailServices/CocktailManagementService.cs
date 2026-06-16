@@ -85,6 +85,7 @@ public class CocktailManagementService : ICocktailManagementService
          {
             CocktailId = cocktailModel.Id,
             IngredientId = ingredient.Id,
+            Ingredient = ingredient,
             Amount = amountValue,
             Unit = unitValue,
             CreatedAt = DateTime.Now,
@@ -95,7 +96,7 @@ public class CocktailManagementService : ICocktailManagementService
       return newCocktailIngredientsList;
    }
 
-   public async Task AddCocktailIngredients(Cocktail cocktailModel)
+   public async Task AddCocktailIngredients(Cocktail cocktailModel, List<CocktailIngredient> cocktailIngredients)
    {
       var ingredientMap = await EnsureCocktailIngredientsExistAsync(cocktailModel);
         
@@ -114,6 +115,5 @@ public interface ICocktailManagementService
       Dictionary<string, Ingredient> ingredientMap,
       Cocktail cocktailModel
    );
-
-   Task AddCocktailIngredients(Cocktail cocktailModel);
+   Task AddCocktailIngredients(Cocktail cocktailModel, List<CocktailIngredient> cocktailIngredients);
 }

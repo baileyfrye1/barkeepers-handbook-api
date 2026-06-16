@@ -10,7 +10,6 @@ public class CocktailIngredientService(Client supabase) : ICocktailIngredientSer
 
 	public async Task<List<CocktailIngredient>> AddManyAsync(List<CocktailIngredient> cocktailIngredients)
 	{
-		Console.WriteLine(JsonConvert.SerializeObject(cocktailIngredients));
 		var result = await _supabase.From<CocktailIngredient>().Insert(cocktailIngredients);
 
 		var newCocktailIngredients = result.Models;

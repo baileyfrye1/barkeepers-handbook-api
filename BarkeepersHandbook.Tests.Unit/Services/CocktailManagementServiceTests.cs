@@ -403,10 +403,12 @@ public class CocktailManagementServiceTests
              var ingredientDict = cocktailIngredients.ToDictionary(ci => ci.Ingredient.Name, ci => ci.Ingredient);
            // Act
            var result = _cocktailManagementService.MapCocktailIngredients(ingredientDict, cocktail);
+           var expectedIngredients = cocktail.CocktailIngredients.Select(i => i.Ingredient.Name).ToList();
 
            // Assert
            result.Should().NotBeNull();
            result.Should().HaveCount(cocktail.CocktailIngredients.Count);
+           result.Select(ci => ci.Ingredient.Name).Should().BeEquivalentTo(expectedIngredients);
        }
    }
 }
